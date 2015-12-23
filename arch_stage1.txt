@@ -6,6 +6,7 @@ env | grep ^INSTALL_
 configure_disk
 
 message "Installing reflector"
+echo -e '\n[options]\nILoveCandy' >> /etc/pacman.conf
 _cmd_ pacman --sync --refresh --noconfirm --color always reflector
 
 message "Updating mirror list"
