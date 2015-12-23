@@ -1,0 +1,23 @@
+#!/bin/bash
+
+source <(curl -s http://${INSTALL_HOST}/arch_fn.txt)
+
+INSTALL_PACKAGES=$(sed 's/\s\+/ /g' <<< "${INSTALL_PACKAGES//$'\n'/ }")
+INSTALL_SERVICES=$(sed 's/\s\+/ /g' <<< "${INSTALL_SERVICES//$'\n'/ }")
+
+for var in $(env | sed -n '/^INSTALL_/s/=.*//p'); do
+    read -p "$var: " -e -i "${!var}" $var 0<&4
+done
+
+message "Starting stage 1"
+bash -e <(curl -sv "http://${INSTALL_HOST}/arch_stage1.txt")
+
+message "Starting stage 2 in chroot"
+arch-chroot /mnt bash -e <(curl -sv "http://${INSTALL_HOST}/arch_stage2.txt")
+
+message "Unmounting"
+umount -R /mnt
+swapoff -a
+lsblk -P \
+    | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
+    | xargs -n 1 cryptsetup close

@@ -1,0 +1,53 @@
+#!/bin/bash -e
+
+message "Environment:"
+env | grep ^INSTALL_
+
+message "Creating initial ram disk"
+_cmd_ sed -i 's/^FILES=""/FILES="$(find /etc/luks.keys -type f 2>/dev/null)"/' /etc/mkinitcpio.conf
+_cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
+_cmd_ mkinitcpio -p linux
+_cmd_ chmod -v 0600 /boot/*.img
+
+message "Installing GRUB"
+echo 'GRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub
+_cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
+_cmd_ grub-mkconfig -o /boot/grub/grub.cfg
+_cmd_ grub-install --target=i386-pc --recheck /dev/sda # FIXME: hardcoded /dev/sda
+
+message "Setting password to root"
+_cmd_ chpasswd <<< "root:${INSTALL_PASSWORD}"
+
+message "Setting timezone to ${INSTALL_TZNAME}"
+_cmd_ ln -sf "/usr/share/zoneinfo/${INSTALL_TZNAME}" /etc/localtime
+
+lines /etc/hostname "${INSTALL_HOSTNAME}"
+lines /etc/locale.gen "${INSTALL_LOCALE}"
+lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
+
+message "Generating locales"
+_cmd_ locale-gen
+
+configure_network
+
+message "Enabling services"
+for service in ${INSTALL_SERVICES}; do
+    case "${service}" in
+        *.target)
+            systemctl set-default ${service}
+            ;;
+        *)
+            systemctl enable ${service}
+            ;;
+    esac
+done
+
+message "Installing pip"
+_cmd_ curl -s "https://bootstrap.pypa.io/get-pip.py" > /tmp/get-pip.py
+_cmd_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
+echo 'PATH=$PATH:$HOME/.local/bin' > '/etc/profile.d/local-bin.sh'
+
+message "Running post_install"
+if [ "$(type -t post_install)" = "function" ]; then
+    post_install
+fi
