@@ -32,7 +32,7 @@ See gh-pages branch for some examples from my home network.
 First, boot the arch ISO. Connect to network using `wifi-menu` if needed. Then, to run
 the script:
 
-    { curl -s j0057.github.io/arch/[hostname].txt | bash -e } 4<&0
+    { curl -s j0057.github.io/arch/[hostname] | bash -e } 4<&0
 
 So curl downloads the script, which is piped over stdin to bash. You'll be prompted for
 every variable that starts with "INSTALL\_", but since stdin is already used for the stdout
@@ -44,7 +44,7 @@ See the gh-pages branch for some examples from my home network.
 
 ### Functions
 
-There are some helper functions are defined in `arch_fn.txt`.
+There are some helper functions are defined in `arch_fn`.
 
 #### Callback: configure\_disk
 
@@ -133,26 +133,26 @@ The password to use for the root account and for decrypting /boot.
 
 ## Stages
 
-The per-host script downloads and runs arch\_stage0.txt, which does the following things:
+The per-host script downloads and runs arch\_stage0, which does the following things:
 
 1. For each install variable, prompt the user to override the value;
-2. Download and source arch\_fn.txt, which contains helper functions;
-3. Download and run arch\_stage1.txt, which partitions, encrypts and formats the disk,
+2. Download and source arch\_fn, which contains helper functions;
+3. Download and run arch\_stage1, which partitions, encrypts and formats the disk,
    and uses `pacstrap` to install the system – basically, all the things that happen
    outside the chroot
-3. Download and run arch\_stage2.txt, which configures the timezone, root password,
+3. Download and run arch\_stage2, which configures the timezone, root password,
    initramfs, boot loader, the network and so on
 4. Unmount the target file systems
 
 ## Developing/branch strategy
 
 The per-hosts scripts can be started from a gh-pages branch that's kept rebased on top of the `master`
-branch on `github.com:j0057/arch`. That means they can be reached at `http://[ghuser].github.io/arch/[hostname].txt`.
+branch on `github.com:j0057/arch`. That means they can be reached at `http://[ghuser].github.io/arch/[hostname]`.
 
 When developing, it's easier to just use `python2 -m SimpleHTTPServer 12345` from a local development
 server, and start the script like this:
 
-    { curl -s somewhere.lan:12345/[hostname].txt | bash -es somewhere.lan:12345 } 4<&0
+    { curl -s somewhere.lan:12345/[hostname] | bash -es somewhere.lan:12345 } 4<&0
 
 This way, using the `-s` parameter to bash, `INSTALL_HOST` can set the default value to
 `somewhere.lan:12345` instead of the default in the script, and you still only have to mash enter a few
