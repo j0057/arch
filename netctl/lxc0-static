@@ -1,0 +1,5 @@
+Interface=lxc0
+Connection=bridge
+BindsToInterfaces=()
+IP=static
+Address=10.103.0.1/24

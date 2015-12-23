@@ -1,0 +1,6 @@
+Interface=wlan0
+Connection=wireless
+Security=wpa
+ESSID="joostAP"
+Key="PASSWORD"
+IP=dhcp

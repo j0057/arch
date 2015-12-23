@@ -1,0 +1,57 @@
+#!/bin/bash -e
+
+# 976773168 sectors = 488386584 KB = 476940 MB = 465 GB
+configure_disk() {
+    partition "$INSTALL_DISK" "gpt" \
+        "1  1M:+1M      ef02    bios    -       -" \
+        "4  +0:+64G     8300    root    ext4    /" \
+        "2  +0:+510M    8300    boot    ext4    /boot" \
+        "3  +0:+512M    ef00    efisys  vfat    /boot/efi" \
+        "5  +0:+384G    8300    home    ext4    /home" \
+        "6  +0:+16G     8300    swap    swap    -"
+}
+
+INSTALL_DISK="/dev/sdb"
+INSTALL_DISK_ENCRYPTION="luks"
+INSTALL_GRUB_FIRMWARE="uefi"
+INSTALL_GRUB_CMDLINE="resume=/dev/mapper/swap"
+
+INSTALL_HOST="${1:-j0057.github.io/arch}"
+INSTALL_HOSTNAME="proton"
+
+INSTALL_INTERFACES="
+    net0  00:90:f5:f4:8f:0d
+    wlan0 7c:e9:d3:aa:c6:53"
+
+INSTALL_NETCTL="
+    net0-dhcp
+    wlan0-pierkes-wlan
+    wlan0-sm-medewerkers
+    wlan0-joost-ap
+    lxc0-static"
+
+INSTALL_TZNAME="Europe/Amsterdam"
+INSTALL_LOCALE="en_US.UTF-8 UTF-8"
+
+INSTALL_PACKAGES="
+    base grub efibootmgr ifplugd wpa_actiond wpa_supplicant
+    lsb-release openssh python2
+    haveged ntp
+    dstat htop iftop iotop mc tmux vim-minimal
+    bind-tools lsof nmap openssl strace tcpdump traceroute
+    bash-completion bridge-utils dos2unix inotify-tools ipcalc ipset powertop
+    bzr cvs darcs git mercurial rcs subversion
+    cinnamon gdm xorg-drivers xorg-server
+    gnome-alsamixer gnome-control-center gnome-icon-theme-extras gnome-screenshot gnome-shell-extensions
+    brasero chromium dia dosbox firefox freerdp handbrake vlc wireshark-qt wireshark-cli
+    qemu virtualbox"
+
+INSTALL_SERVICES="
+    netctl-ifplugd@net0.service netctl-auto@wlan0.service netctl@lxc0-static.service
+    ntpd.service
+    haveged.service
+    multi-user.target"
+
+INSTALL_PASSWORD="root"
+
+source <(curl -s "http://${INSTALL_HOST}/arch_stage0")

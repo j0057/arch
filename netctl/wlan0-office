@@ -1,0 +1,17 @@
+Interface=wlan0
+Connection=wireless
+Security=wpa-configsection
+ESSID="NAME"
+WPAConfigSection=(
+    'ssid="NAME"'
+    'scan_ssid=1'
+    'key_mgmt=WPA-EAP'
+    'pairwise=CCMP'
+    'eap=PEAP'
+    'phase1="peaplabel=0"'
+    'phase2="auth=MSCHAPv2"'
+    # echo -n 'password' | iconv -t utf16le | openssl md4
+    'identity="USERNAME"'
+    'password=hash:PASSWORDHASH'
+)
+IP=dhcp

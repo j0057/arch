@@ -1,0 +1,47 @@
+#!/bin/bash -e
+
+configure_disk() {
+    partition "${INSTALL_DISK}" "mbr" \
+        "2  +0:+16G     8300    root    ext4    /" \
+        "1  1M:+1023M   8300    boot    ext4    /boot" \
+        "3  +0:+128G    8300    home    ext4    /home" \
+        "4  +0:+4G      8200    swap    swap    -"
+}
+
+INSTALL_DISK="/dev/sda"
+INSTALL_DISK_ENCRYPTION="none"
+INSTALL_GRUB_FIRMWARE="bios"
+INSTALL_GRUB_CMDLINE="resume=/dev/mapper/swap"
+
+INSTALL_HOST="${1:-j0057.github.io/arch}"
+INSTALL_HOSTNAME="neutrino"
+
+INSTALL_INTERFACES="
+    net0  00:26:22:0f:d3:8f
+    wlan0 00:26:5e:68:0a:39"
+INSTALL_NETCTL="net0-dhcp wlan0-pierkes-wlan"
+
+INSTALL_TZNAME="Europe/Amsterdam"
+INSTALL_LOCALE="en_US.UTF-8 UTF-8"
+
+INSTALL_PACKAGES="
+    base grub ifplugd wpa_actiond wpa_supplicant
+    lsb-release openssh python2
+    haveged ntp
+    bind-tools htop powertop tmux vim-minimal
+    lightdm lightdm-gtk-greeter xfce4 xfce4-goodies xorg-drivers xorg-server
+    chromium"
+
+INSTALL_SERVICES="
+    netctl-ifplugd@net0.service netctl-auto@wlan0.service
+    ntpd.service
+    haveged.service
+    multi-user.target"
+
+INSTALL_PASSWORD="root"
+
+post_install() {
+    _cmd_ sed -i 's/^#\?HandleLidSwitch=.*$/HandleLidSwitch=ignore/' /etc/systemd/logind.conf
+}
+
+source <(curl -s "http://${INSTALL_HOST}/arch_stage0")
