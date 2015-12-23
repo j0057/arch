@@ -12,8 +12,9 @@ _cmd_ chmod -v 0600 /boot/*.img
 message "Installing GRUB"
 echo 'GRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub
 _cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
+_cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s/=\"quiet\"/=\"${INSTALL_GRUB_CMDLINE}\"/" /etc/default/grub
 _cmd_ grub-mkconfig -o /boot/grub/grub.cfg
-_cmd_ grub-install --target=i386-pc --recheck /dev/sda # FIXME: hardcoded /dev/sda
+_cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
 
 message "Setting password to root"
 _cmd_ chpasswd <<< "root:${INSTALL_PASSWORD}"

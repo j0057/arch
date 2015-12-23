@@ -7,6 +7,9 @@ for var in $(env | sed -n '/^INSTALL_/s/=.*//p'); do
     read -p "$var: " -e -i "${!var}" $var 0<&4
 done
 
+export INSTALL_GRUB_DISK="${INSTALL_GRUB_DISK:-/dev/sda}"
+export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
+
 message "Loading functions"
 source <(curl -s http://${INSTALL_HOST}/arch_fn.txt)
 
