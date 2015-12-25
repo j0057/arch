@@ -10,7 +10,7 @@ _cmd_ mkinitcpio -p linux
 _cmd_ chmod -v 0600 /boot/*.img
 
 message "Installing GRUB"
-echo 'GRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub
+lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
 _cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
 _cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"${INSTALL_GRUB_CMDLINE}\"!" /etc/default/grub
 _cmd_ grub-mkconfig -o /boot/grub/grub.cfg
@@ -46,7 +46,7 @@ done
 message "Installing pip"
 _cmd_ curl -s "https://bootstrap.pypa.io/get-pip.py" > /tmp/get-pip.py
 _cmd_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
-echo 'PATH=$PATH:$HOME/.local/bin' > '/etc/profile.d/local-bin.sh'
+lines /etc/profile.d/local-bin.sh 'PATH=$PATH:$HOME/.local/bin'
 
 message "Running post_install"
 if [ "$(type -t post_install)" = "function" ]; then
