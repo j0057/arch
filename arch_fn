@@ -102,8 +102,11 @@ partition() {
     message "Partitioning with sgdisk"
     partition-with-sgdisk "${@}"
 
-    message "Encrypting"
-    partition-encrypt "${@}"
+    case "${INSTALL_DISK_ENCRYPTION}" in
+        luks)
+            partition-encrypt "${@}"
+            ;;
+    esac
 
     message "Formatting"
     partition-format "${@}"

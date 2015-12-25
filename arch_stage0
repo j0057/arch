@@ -7,6 +7,7 @@ for var in $(env | sed -n '/^INSTALL_/s/=.*//p'); do
     read -p "$var: " -e -i "${!var}" $var 0<&4
 done
 
+export INSTALL_DISK_ENCRYPTION="luks"
 export INSTALL_GRUB_DISK="${INSTALL_GRUB_DISK:-/dev/sda}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 
@@ -22,6 +23,11 @@ arch-chroot /mnt bash -e <(curl -sv "http://${INSTALL_HOST}/arch_stage2")
 message "Unmounting"
 umount -R /mnt
 swapoff -a
-lsblk -P \
-    | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
-    | xargs -n 1 cryptsetup close
+
+case "${INSTALL_DISK_ENCRYPTION}" in
+    luks)
+        lsblk -P \
+            | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
+            | xargs -n 1 cryptsetup close
+        ;;
+esac

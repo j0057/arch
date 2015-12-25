@@ -19,5 +19,9 @@ message "Generating /etc/fstab"
 _cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
 
 message "Configuring crypto disks"
-_cmd_ cp -Rv /tmp/luks.keys /mnt/etc
-_cmd_ cp -v /tmp/crypttab /mnt/etc/crypttab.initramfs
+case "${INSTALL_DISK_ENCRYPTIONr}" in
+    luks)
+        _cmd_ cp -Rv /tmp/luks.keys /mnt/etc
+        _cmd_ cp -v /tmp/crypttab /mnt/etc/crypttab.initramfs
+        ;;
+esac
