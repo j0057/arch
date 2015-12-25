@@ -21,7 +21,7 @@ _cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
 message "Configuring crypto disks"
 case "${INSTALL_DISK_ENCRYPTIONr}" in
     luks)
-        _cmd_ cp -Rv /tmp/luks.keys /mnt/etc
-        _cmd_ cp -v /tmp/crypttab /mnt/etc/crypttab.initramfs
+        _cmd_ mv -v /tmp/luks.keys /mnt/etc
+        _cmd_ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
         ;;
 esac
