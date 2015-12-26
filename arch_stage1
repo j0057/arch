@@ -1,24 +1,17 @@
 #!/bin/bash -e
 
-message "Environment"
 env | grep ^INSTALL_
 
 configure_disk
 
-message "Installing reflector"
 echo -e '\n[options]\nILoveCandy' >> /etc/pacman.conf
 _cmd_ pacman --sync --refresh --noconfirm --color always reflector
-
-message "Updating mirror list"
 _cmd_ reflector --country NL --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
 
-message "Bootstrapping"
 _cmd_ pacstrap /mnt ${INSTALL_PACKAGES}
 
-message "Generating /etc/fstab"
 _cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
 
-message "Configuring crypto disks"
 case "${INSTALL_DISK_ENCRYPTIONr}" in
     luks)
         _cmd_ mv -v /tmp/luks.keys /mnt/etc
