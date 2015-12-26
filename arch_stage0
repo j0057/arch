@@ -11,11 +11,11 @@ export INSTALL_DISK_ENCRYPTION="luks"
 export INSTALL_GRUB_DISK="${INSTALL_GRUB_DISK:-/dev/sda}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 
-source <(curl -s http://${INSTALL_HOST}/arch_fn)
+get() { curl -s http://${INSTALL_HOST}/$1; }
 
-bash -e <(curl -sv "http://${INSTALL_HOST}/arch_stage1")
-
-arch-chroot /mnt bash -e <(curl -sv "http://${INSTALL_HOST}/arch_stage2")
+source <(get arch_fn)
+bash -e <(get arch_stage1)
+arch-chroot /mnt bash -e <(get arch_stage2)
 
 umount -R /mnt
 swapoff -a
