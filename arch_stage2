@@ -23,7 +23,15 @@ lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
 
 _cmd_ locale-gen
 
-configure_network
+for profile in ${INSTALL_NETCTL}; do
+    _cmd_ curl -s http://${INSTALL_HOST}/netctl/${profile} > /etc/netctl/${profile}
+done
+
+read -a intf_mac <<< ${INSTALL_INTERFACES}
+for i in `seq 1 2 ${#intf_mac[*]}`; do
+    let j=i+1
+    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"${intf_mac[j]}\", NAME=\"${intf_mac[i]}\"" >> /etc/udev/rules.d/10-network.rules
+done
 
 for service in ${INSTALL_SERVICES}; do
     case "${service}" in
