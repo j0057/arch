@@ -1,26 +1,10 @@
 #!/bin/bash -e
 
-# (7) configure /etc/mkinitcpio.conf and genrate initramfs
-_cmd_ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
-_cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
-_cmd_ mkinitcpio -p linux
-_cmd_ chmod -v 0600 /boot/*.img
-
-# (9) configure and install grub
-lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
-_cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
-_cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"${INSTALL_GRUB_CMDLINE}\"!" /etc/default/grub
-_cmd_ grub-mkconfig -o /boot/grub/grub.cfg
-_cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
-
-# (8) set root password
-_cmd_ chpasswd <<< "root:${INSTALL_PASSWORD}"
+# (1) set hostname
+lines /etc/hostname "${INSTALL_HOSTNAME}"
 
 # (2) set timezone
 _cmd_ ln -sf "/usr/share/zoneinfo/${INSTALL_TZNAME}" /etc/localtime
-
-# (1) set hostname
-lines /etc/hostname "${INSTALL_HOSTNAME}"
 
 # (3) generate locales
 lines /etc/locale.gen "${INSTALL_LOCALE}"
@@ -31,17 +15,33 @@ lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
 
 # (5) TODO: /etc/vconsole.conf
 
-# (6b) install netctl profiles
-for profile in ${INSTALL_NETCTL}; do
-    _cmd_ curl -s http://${INSTALL_HOST}/netctl/${profile} > /etc/netctl/${profile}
-done
-
 # (6a) configure network adapters
 read -a intf_mac <<< ${INSTALL_INTERFACES}
 for i in `seq 1 2 ${#intf_mac[*]}`; do
     let j=i+1
     echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"${intf_mac[j]}\", NAME=\"${intf_mac[i]}\"" >> /etc/udev/rules.d/10-network.rules
 done
+
+# (6b) install netctl profiles
+for profile in ${INSTALL_NETCTL}; do
+    _cmd_ curl -s http://${INSTALL_HOST}/netctl/${profile} > /etc/netctl/${profile}
+done
+
+# (7) configure /etc/mkinitcpio.conf and genrate initramfs
+_cmd_ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
+_cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
+_cmd_ mkinitcpio -p linux
+_cmd_ chmod -v 0600 /boot/*.img
+
+# (8) set root password
+_cmd_ chpasswd <<< "root:${INSTALL_PASSWORD}"
+
+# (9) configure and install grub
+lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
+_cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
+_cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"${INSTALL_GRUB_CMDLINE}\"!" /etc/default/grub
+_cmd_ grub-mkconfig -o /boot/grub/grub.cfg
+_cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
 
 # enable services
 for service in ${INSTALL_SERVICES}; do
