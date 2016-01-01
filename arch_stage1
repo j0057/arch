@@ -1,17 +1,20 @@
 #!/bin/bash -e
 
-_cmd_ env | grep ^INSTALL_
-
+# partition, format, encrypt and mount
 configure_disk
 
+# find fastest mirrors
 echo -e '\n[options]\nILoveCandy' >> /etc/pacman.conf
 _cmd_ pacman --sync --refresh --noconfirm --color always reflector
 _cmd_ reflector --country NL --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
 
+# install base system
 _cmd_ pacstrap /mnt ${INSTALL_PACKAGES}
 
+# configure /etc/fstab
 _cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
 
+# install LUKS keys
 case "${INSTALL_DISK_ENCRYPTION}" in
     luks)
         _cmd_ mv -v /tmp/luks.keys /mnt/etc

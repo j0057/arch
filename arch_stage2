@@ -1,38 +1,45 @@
 #!/bin/bash -e
 
-_cmd_ env | grep ^INSTALL_
-
+# generate /boot/initramfs-linux.img
 _cmd_ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
 _cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
 _cmd_ mkinitcpio -p linux
 _cmd_ chmod -v 0600 /boot/*.img
 
+# configure and install grub
 lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
 _cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
 _cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"${INSTALL_GRUB_CMDLINE}\"!" /etc/default/grub
 _cmd_ grub-mkconfig -o /boot/grub/grub.cfg
 _cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
 
+# set root password
 _cmd_ chpasswd <<< "root:${INSTALL_PASSWORD}"
 
+# set timezone
 _cmd_ ln -sf "/usr/share/zoneinfo/${INSTALL_TZNAME}" /etc/localtime
 
+# set hostname
 lines /etc/hostname "${INSTALL_HOSTNAME}"
+
+# set locale
 lines /etc/locale.gen "${INSTALL_LOCALE}"
 lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
-
 _cmd_ locale-gen
 
+# install netctl profiles
 for profile in ${INSTALL_NETCTL}; do
     _cmd_ curl -s http://${INSTALL_HOST}/netctl/${profile} > /etc/netctl/${profile}
 done
 
+# configure network adapters
 read -a intf_mac <<< ${INSTALL_INTERFACES}
 for i in `seq 1 2 ${#intf_mac[*]}`; do
     let j=i+1
     echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"${intf_mac[j]}\", NAME=\"${intf_mac[i]}\"" >> /etc/udev/rules.d/10-network.rules
 done
 
+# enable services
 for service in ${INSTALL_SERVICES}; do
     case "${service}" in
         netctl@*.service)   _cmd_ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "${service}") ;;
@@ -41,10 +48,12 @@ for service in ${INSTALL_SERVICES}; do
     esac
 done
 
+# install pip
 _cmd_ curl -s "https://bootstrap.pypa.io/get-pip.py" > /tmp/get-pip.py
 _cmd_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
 lines /etc/profile.d/local-bin.sh 'PATH=$PATH:$HOME/.local/bin'
 
+# run post-install function
 if [ "$(type -t post_install)" = "function" ]; then
     post_install
 fi
