@@ -67,8 +67,10 @@ partition-format() {
             [ -e ${dev} ] && break
         done 
         case ${fstype} in
-            swap)  _cmd_ mkswap -L ${label} ${dev} ;;
-            *)     _cmd_ mkfs.ext4 -L ${label} -t ${fstype} ${dev} ;;
+            swap)   _cmd_ mkswap -L ${label} ${dev} ;;
+            ext4)   _cmd_ mkfs.ext4 -L ${label} ${dev} ;;
+            vfat)   _cmd_ mkfs.vfat -L ${label} ${dev} ;;
+            *)     exit 1 ;;
         esac
     done
 }
@@ -106,4 +108,5 @@ partition() {
 
     partition-mount "${@}"
 }
+
 export -f partition partition-with-sgdisk partition-encrypt partition-format partition-mount
