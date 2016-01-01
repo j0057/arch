@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# strip whitespace
+# strip whitespace from some variables
+INSTALL_INTERFACES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_INTERFACES//$'\n'/ }")
 INSTALL_PACKAGES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_PACKAGES//$'\n'/ }")
 INSTALL_SERVICES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_SERVICES//$'\n'/ }")
+INSTALL_NETCTL=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_NETCTL//$'\n'/ }")
 
 # override and export variables starting with INSTALL_*
 for var in ${!INSTALL_*}; do
