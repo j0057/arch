@@ -35,12 +35,9 @@ done
 
 for service in ${INSTALL_SERVICES}; do
     case "${service}" in
-        *.target)
-            _cmd_ systemctl set-default ${service}
-            ;;
-        *)
-            _cmd_ systemctl enable ${service}
-            ;;
+        netctl@*.service)   _cmd_ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "${service}") ;;
+        *.target)           _cmd_ systemctl set-default ${service} ;;
+        *)                  _cmd_ systemctl enable ${service} ;;
     esac
 done
 
