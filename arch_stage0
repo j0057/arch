@@ -3,11 +3,18 @@
 INSTALL_PACKAGES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_PACKAGES//$'\n'/ }")
 INSTALL_SERVICES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_SERVICES//$'\n'/ }")
 
-for var in $(env | sed -n '/^INSTALL_/s/=.*//p'); do
-    read -p "$var: " -e -i "${!var}" $var 0<&4
+for var in ${!INSTALL_*}; do
+    read -p "${var}: " -e -i "${!var}" ${var} 0<&4
+    export ${var}
 done
 
-export INSTALL_DISK_ENCRYPTION="luks"
+for func in configure_disk post_install; do
+    if [ "$(type -t ${func})" = function ]; then
+        export -f ${func}
+    fi
+done
+
+export INSTALL_DISK_ENCRYPTION="${INSTALL_DISK_ENCRYPTION:-luks}"
 export INSTALL_GRUB_DISK="${INSTALL_GRUB_DISK:-/dev/sda}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 
