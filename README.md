@@ -25,8 +25,6 @@ Write a script that exports two or three bash functions and some variables, and 
 curl-executes another script that partitions, formats, installs and configures a basic
 Arch system.
 
-See gh-pages branch for some examples from my home network.
-
 ## Run the installer
 
 First, boot the arch ISO. Connect to network using `wifi-menu` if needed. Then, to run
@@ -50,15 +48,6 @@ There are some helper functions are defined in `arch_fn`.
 
 This function should be exported with `export -f`, and it should partition, format and mount
 the disk, ideally using `partition()`.
-
-#### Callback: configure\_network
-
-This function should configure the network... whatever that means. For me, it means tying the
-MAC addresses to interface names using udev rules, creating netctl profiles, and later 
-enabling `netctl-ifplugd@.service` for ethernet interfaces, and `netctl-auto@.service` for
-wireless interfaces.
-
-TODO: create a `network()` helper that does this
 
 #### Callback: post\_install
 
