@@ -23,7 +23,8 @@ partition-with-sgdisk() {
             # partitions are listed in the order they should be mounted, but created in the order according to $num
             read num size typecode label fstype mountpoint <<< "${!j}"
             if [ "${num}" = "${i}" ]; then
-                _cmd_ sgdisk ${disk} --new ${i}:${size} --typecode ${i}:${typecode} --change-name ${i}:${label}
+                _cmd_ sgdisk ${disk} --new ${i}:${size} --typecode ${i}:${typecode} --change-name ${i}:${label} \
+                        --attributes "${i}:set:63"
             fi
         done
     done
