@@ -34,7 +34,7 @@ partition-with-sgdisk() {
     fi
     case ${parttype} in
         mbr) _cmd_ sfdisk ${disk} --list ;;
-        gpt) _cmd_ sgdisk --print ;;
+        gpt) _cmd_ sgdisk ${disk} --print ;;
     esac
 }
 
