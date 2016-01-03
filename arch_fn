@@ -47,6 +47,10 @@ partition-encrypt() {
     for i in $(seq 1 $#); do
         read num size typecode label fstype mountpoint <<< "${!i}"
 
+        if [ ${typecode} = ef00 -o ${typecode} = ef02 ]; then
+            continue
+        fi
+
         _cmd_ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/${label}.key
         chmod -v 0400 /tmp/luks.keys/${label}.key
 
@@ -71,7 +75,8 @@ partition-format() {
             swap)   _cmd_ mkswap -L ${label} ${dev} ;;
             ext4)   _cmd_ mkfs.ext4 -L ${label} ${dev} ;;
             vfat)   _cmd_ mkfs.vfat -n ${label} ${dev} ;;
-            *)     exit 1 ;;
+            -)      ;;
+            *)      echo "$FUNCNAME: unkown fstype ${fstype}" >&2 ; exit 1 ;;
         esac
     done
 }
@@ -84,6 +89,7 @@ partition-mount() {
             swap)
                 _cmd_ swapon LABEL=${label}
                 ;;
+            -)  ;;
             *)
                 _cmd_ mkdir -vp /mnt${mountpoint}
                 _cmd_ mount -v LABEL=${label} /mnt${mountpoint}
