@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+configure_disk() { # plain uefi gpt
+    partition "${INSTALL_DISK}" "gpt" \
+        "3  +0:+8G      8300    root    ext4    /" \
+        "2  +0:+511M    8300    boot    ext4    /boot" \
+        "1  +0:+512M    ef00    efisys  vfat    /boot/efi" \
+        "4  +0:+5G      8300    home    ext4    /home" \
+        "5  +0:+2G      8200    swap    swap    -"
+}
+
+INSTALL_DISK="/dev/sda"
+INSTALL_DISK_ENCRYPTION="none"
+INSTALL_GRUB_FIRMWARE="uefi"
+INSTALL_GRUB_CMDLINE="resume=/dev/sda5"
+
+INSTALL_HOST="${1:-j0057.github.io/arch}"
+INSTALL_HOSTNAME="arch-vbox3"
+
+INSTALL_PACKAGES="
+    base grub efibootmgr
+    ifplugd
+    ntp haveged
+    tmux vim-minimal htop lsof strace bind-tools traceroute openssl mc
+    openssh python2 lsb-release"
+INSTALL_SERVICES="
+    netctl-ifplugd@net0.service
+    sshd.service
+    multi-user.target"
+
+INSTALL_INTERFACES="net0 08:00:27:09:a0:17"
+INSTALL_NETCTL="net0-dhcp"
+
+INSTALL_TZNAME="Europe/Amsterdam"
+INSTALL_LOCALE="en_US.UTF-8 UTF-8"
+
+INSTALL_PASSWORD="root"
+
+source <(curl -s "http://${INSTALL_HOST}/arch_stage0")
