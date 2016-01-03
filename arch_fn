@@ -92,20 +92,13 @@ partition-mount() {
 }
 
 partition() {
-    disk=$1
-    parttype=$2
-    shift 2
+    disk=$1 ; parttype=$2 ; shift 2
 
     partition-with-sgdisk "${@}"
-
-    case "${INSTALL_DISK_ENCRYPTION}" in
-        luks)
-            partition-encrypt "${@}"
-            ;;
-    esac
-
+    if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
+        partition-encrypt "${@}"
+    fi
     partition-format "${@}"
-
     partition-mount "${@}"
 }
 

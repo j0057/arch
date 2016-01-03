@@ -37,10 +37,8 @@ umount -R /mnt
 swapoff -a
 
 # close device mapper stuff
-case "${INSTALL_DISK_ENCRYPTION}" in
-    luks)
-        lsblk -P \
-            | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
-            | xargs -n 1 cryptsetup close
-        ;;
-esac
+if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
+    lsblk -P \
+        | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
+        | xargs -n 1 cryptsetup close
+fi

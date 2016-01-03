@@ -15,9 +15,7 @@ _cmd_ pacstrap /mnt ${INSTALL_PACKAGES}
 _cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
 
 # install LUKS keys
-case "${INSTALL_DISK_ENCRYPTION}" in
-    luks)
-        _cmd_ mv -v /tmp/luks.keys /mnt/etc
-        _cmd_ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
-        ;;
-esac
+if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
+    _cmd_ mv -v /tmp/luks.keys /mnt/etc
+    _cmd_ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
+fi
