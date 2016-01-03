@@ -69,7 +69,7 @@ partition-format() {
         case ${fstype} in
             swap)   _cmd_ mkswap -L ${label} ${dev} ;;
             ext4)   _cmd_ mkfs.ext4 -L ${label} ${dev} ;;
-            vfat)   _cmd_ mkfs.vfat -L ${label} ${dev} ;;
+            vfat)   _cmd_ mkfs.vfat -n ${label} ${dev} ;;
             *)     exit 1 ;;
         esac
     done
