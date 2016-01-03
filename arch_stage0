@@ -28,9 +28,10 @@ export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 get() { curl -s http://${INSTALL_HOST}/$1; }
 
 # actual stage0: load functions, run stage1 and stage2
+[[ "$-" = *x* ]] && OPT="-ex" || OPT="-e"
 source <(get arch_fn)
-bash -e <(get arch_stage1)
-arch-chroot /mnt bash -e <(get arch_stage2)
+bash $OPT <(get arch_stage1)
+arch-chroot /mnt bash $OPT <(get arch_stage2)
 
 # unmount filesystems and swaps
 umount -R /mnt
