@@ -27,7 +27,7 @@ for profile in ${INSTALL_NETCTL}; do
     _cmd_ curl -s http://${INSTALL_HOST}/netctl/${profile} > /etc/netctl/${profile}
 done
 
-# (7) configure /etc/mkinitcpio.conf and genrate initramfs
+# (7) configure /etc/mkinitcpio.conf and generate initramfs
 if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
     _cmd_ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
     _cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
@@ -51,9 +51,9 @@ case ${INSTALL_GRUB_FIRMWARE} in
         _cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
         ;;
     uefi)
-        _cmd_ grub-install --target=x86_64-efi --recheck --efi-directory=/boot/efi --bootloader-id=grub
+        _cmd_ grub-install --target=x86_64-efi --recheck --efi-directory=/boot/efi --bootloader-id="ArchLinux"
         _cmd_ mkdir -v /boot/efi/EFI/boot
-        _cmd_ cp -v /boot/efi/EFI/grub/grubx64.efi /boot/efi/EFI/boot/bootx64.efi
+        _cmd_ cp -v /boot/efi/EFI/ArchLinux/grubx64.efi /boot/efi/EFI/boot/bootx64.efi
         ;;
 esac
 
