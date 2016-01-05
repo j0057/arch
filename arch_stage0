@@ -25,13 +25,17 @@ export INSTALL_DISK_ENCRYPTION="${INSTALL_DISK_ENCRYPTION:-luks}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 export INSTALL_GRUB_FIRMWARE="${INSTALL_GRUB_FIRMWARE:-bios}"
 
-get() { curl -s http://${INSTALL_HOST}/$1; }
 
 # actual stage0: load functions, run stage1 and stage2
 [[ "$-" = *x* ]] && OPT="-ex" || OPT="-e"
-source <(get arch_fn)
-bash $OPT <(get arch_stage1)
-arch-chroot /mnt bash $OPT <(get arch_stage2)
+source \
+    <(curl -s http://${INSTALL_HOST}/arch_fn)
+
+bash ${OPT} \
+    <(curl -s http://${INSTALL_HOST}/arch_stage1)
+
+arch-chroot /mnt bash ${OPT} \
+    <(curl -s http://${INSTALL_HOST}/arch_stage2)
 
 # unmount filesystems and swaps
 umount -R /mnt
