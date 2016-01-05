@@ -48,7 +48,7 @@ _cmd_ grub-mkconfig -o /boot/grub/grub.cfg
 
 case ${INSTALL_GRUB_FIRMWARE} in
     bios)
-        _cmd_ grub-install --target=i386-pc --recheck ${INSTALL_GRUB_DISK}
+        _cmd_ grub-install --target=i386-pc --recheck ${INSTALL_DISK}
         ;;
     uefi)
         _cmd_ grub-install --target=x86_64-efi --recheck --efi-directory=/boot/efi --bootloader-id="ArchLinux"
