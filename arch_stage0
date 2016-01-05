@@ -25,9 +25,10 @@ export INSTALL_DISK_ENCRYPTION="${INSTALL_DISK_ENCRYPTION:-luks}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 export INSTALL_GRUB_FIRMWARE="${INSTALL_GRUB_FIRMWARE:-bios}"
 
+# preserve -e and -x flags
+[[ "$-" = *x* ]] && OPT="-ex" || OPT="-e"
 
 # actual stage0: load functions, run stage1 and stage2
-[[ "$-" = *x* ]] && OPT="-ex" || OPT="-e"
 source \
     <(curl -s http://${INSTALL_HOST}/arch_fn)
 
