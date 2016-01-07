@@ -8,14 +8,14 @@ INSTALL_NETCTL=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_NETCTL//$'\n'/ }")
 
 # override and export variables starting with INSTALL_*
 for var in ${!INSTALL_*}; do
-    read -p "${var}: " -e -i "${!var}" ${var} 0<&4
-    export ${var}
+    read -p "$var: " -e -i "${!var}" $var 0<&4
+    export $var
 done
 
 # export functions
 for func in configure_disk post_install; do
-    if [ "$(type -t ${func})" = function ]; then
-        export -f ${func}
+    if [ "$(type -t $func)" = function ]; then
+        export -f $func
     fi
 done
 
@@ -30,20 +30,20 @@ export INSTALL_GRUB_FIRMWARE="${INSTALL_GRUB_FIRMWARE:-bios}"
 
 # actual stage0: load functions, run stage1 and stage2
 source \
-    <(curl -s http://${INSTALL_HOST}/arch_fn)
+    <(curl -s http://$INSTALL_HOST/arch_fn)
 
-bash ${OPT} \
-    <(curl -s http://${INSTALL_HOST}/arch_stage1)
+bash $OPT \
+    <(curl -s http://$INSTALL_HOST/arch_stage1)
 
-arch-chroot /mnt bash ${OPT} \
-    <(curl -s http://${INSTALL_HOST}/arch_stage2)
+arch-chroot /mnt bash $OPT \
+    <(curl -s http://$INSTALL_HOST/arch_stage2)
 
 # unmount filesystems and swaps
 umount -R /mnt
 swapoff -a
 
 # close device mapper stuff
-if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
+if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
     lsblk -P \
         | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
         | xargs -n 1 cryptsetup close
