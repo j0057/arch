@@ -54,7 +54,7 @@ if-correct-partition() {
 }
 
 partition-create() {
-    _ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
+    _ sgdisk $disk --new $num:$size --typecode $num:$typecode --change-name $num:$label --attributes $num:set:63
 }
 
 if-partition-is-luks() {
