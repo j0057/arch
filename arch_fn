@@ -1,11 +1,22 @@
 #!/bin/bash
 
-if-correct-partition() {
-    test $j = $num
-}
-
-partition-create() {
-    _cmd_ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
+partition() {
+    local i disk=$1 parttype=$2 partitions=()
+    shift 2
+    for i in $(seq 1 $#); do
+        partitions[i]="${!i}"
+    done
+    partition-disk
+    if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
+        _cmd_ mkdir -vp /tmp/luks.keys
+        foreach-partition partition-luks-gen-key if-partition-is-luks
+        foreach-partition partition-luks-encrypt if-partition-is-luks
+        foreach-partition partition-luks-add-key if-partition-is-luks
+        foreach-partition partition-luks-decrypt if-partition-is-luks
+        foreach-partition partition-luks-crypttab if-partition-is-luks
+    fi
+    foreach-partition partition-format
+    foreach-partition partition-mount
 }
 
 partition-disk() {
@@ -19,6 +30,34 @@ partition-disk() {
              _cmd_ sgdisk $disk --print-mbr ;;
         gpt) _cmd_ sgdisk $disk --print ;;
     esac
+}
+
+partition-format() {
+    case $fstype in
+        swap)   _cmd_ mkswap -L $label $dev ;;
+        ext4)   _cmd_ mkfs.ext4 -L $label $dev ;;
+        vfat)   _cmd_ mkfs.vfat -n $label $dev ;;
+        -)      ;;
+        *)      echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
+    esac
+}
+
+partition-mount() {
+    case $fstype in
+        swap) _cmd_ swapon -v LABEL=$label ;;
+        -)    ;;
+        *)    _cmd_ mkdir -vp /mnt$mountpoint
+              _cmd_ mount -v LABEL=$label /mnt$mountpoint
+              ;;
+    esac
+}
+
+if-correct-partition() {
+    test $j = $num
+}
+
+partition-create() {
+    _cmd_ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
 }
 
 if-partition-is-luks() {
@@ -44,45 +83,6 @@ partition-luks-decrypt() {
 
 partition-luks-crypttab() {
     lines /tmp/crypttab "$label $disk$num /etc/luks.keys/$label.key"
-}
-
-partition-format() {
-    case $fstype in
-        swap)   _cmd_ mkswap -L $label $dev ;;
-        ext4)   _cmd_ mkfs.ext4 -L $label $dev ;;
-        vfat)   _cmd_ mkfs.vfat -n $label $dev ;;
-        -)      ;;
-        *)      echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
-    esac
-}
-
-partition-mount() {
-    case $fstype in
-        swap) _cmd_ swapon -v LABEL=$label ;;
-        -)    ;;
-        *)    _cmd_ mkdir -vp /mnt$mountpoint
-              _cmd_ mount -v LABEL=$label /mnt$mountpoint
-              ;;
-    esac
-}
-
-partition() {
-    local i disk=$1 parttype=$2 partitions=()
-    shift 2
-    for i in $(seq 1 $#); do
-        partitions[i]="${!i}"
-    done
-    partition-disk
-    if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
-        _cmd_ mkdir -vp /tmp/luks.keys
-        foreach-partition partition-luks-gen-key if-partition-is-luks
-        foreach-partition partition-luks-encrypt if-partition-is-luks
-        foreach-partition partition-luks-add-key if-partition-is-luks
-        foreach-partition partition-luks-decrypt if-partition-is-luks
-        foreach-partition partition-luks-crypttab if-partition-is-luks
-    fi
-    foreach-partition partition-format
-    foreach-partition partition-mount
 }
 
 foreach-partition() {
