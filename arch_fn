@@ -94,7 +94,11 @@ foreach-partition() {
         if [ $typecode = ef00 -o $typecode = ef01 -o $typecode = fe02 ]; then
             encryption=none
         fi
-        test -z "$cond" && $fn || { test $cond && $fn ; }
+        if [ -n "$cond" ]; then
+            if $cond; then $fn; fi
+        else
+            $fn
+        fi
     done
 }
 
