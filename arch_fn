@@ -75,20 +75,13 @@ partition-format() {
 }
 
 partition-mount() {
-    local i num size typecode label fstype mountpoint
-    for i in $(seq 1 $#); do
-        read num size typecode label fstype mountpoint <<< "${!i}"
-        case ${fstype} in
-            swap)
-                _cmd_ swapon -v LABEL=${label}
-                ;;
-            -)  ;;
-            *)
-                _cmd_ mkdir -vp /mnt${mountpoint}
-                _cmd_ mount -v LABEL=${label} /mnt${mountpoint}
-                ;;
-        esac
-    done
+    case $fstype in
+        swap) _cmd_ swapon -v LABEL=$label ;;
+        -)    ;;
+        *)    _cmd_ mkdir -vp /mnt$mountpoint
+              _cmd_ mount -v LABEL=$label /mnt$mountpoint
+              ;;
+    esac
 }
 
 partition() {
