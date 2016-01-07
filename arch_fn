@@ -40,30 +40,28 @@ partition-disk() {
     esac
 }
 
-partition-encrypt() {
-    local i num size typecode label fstype mountpoint
+if-partition-is-luks() {
+    test $encryption = luks
+}
+partition-luks-gen-key() {
+    _cmd_ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/$label.key
+}
 
-    _cmd_ mkdir -vp /tmp/luks.keys
-    _cmd_ chmod -v 0700 /tmp/luks.keys
+partition-luks-encrypt() {
+    _cmd_ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $disk$num
+}
 
-    for i in $(seq 1 $#); do
-        read num size typecode label fstype mountpoint <<< "${!i}"
+partition-luks-add-key() {
+    _cmd_ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $disk$num \
+        <(echo -n "$INSTALL_PASSWORD")
+}
 
-        if [ ${typecode} = ef00 -o ${typecode} = ef02 ]; then
-            continue
-        fi
+partition-luks-decrypt() {
+    _cmd_ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $disk$num $label
+}
 
-        _cmd_ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/${label}.key
-        chmod -v 0400 /tmp/luks.keys/${label}.key
-
-        _cmd_ cryptsetup luksFormat -q -d /tmp/luks.keys/${label}.key -s 512 ${disk}${num}
-        _cmd_ cryptsetup luksAddKey -q -d /tmp/luks.keys/${label}.key ${disk}${num} <(echo -n "${INSTALL_PASSWORD}")
-
-        lines /tmp/crypttab \
-            "${label} ${disk}${num} /etc/luks.keys/${label}.key"
-
-        _cmd_ cryptsetup luksOpen -q -d /tmp/luks.keys/${label}.key ${disk}${num} ${label}
-    done
+partition-luks-crypttab() {
+    lines /tmp/crypttab "$label $disk$num /etc/luks.keys/$label.key"
 }
 
 partition-format() {
