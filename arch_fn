@@ -85,14 +85,22 @@ partition-mount() {
 }
 
 partition() {
-    disk=$1 ; parttype=$2 ; shift 2
-
-    partition-with-sgdisk "${@}"
-    if [ ${INSTALL_DISK_ENCRYPTION} = luks ]; then
-        partition-encrypt "${@}"
+    local i disk=$1 parttype=$2 partitions=()
+    shift 2
+    for i in $(seq 1 $#); do
+        partitions[i]="${!i}"
+    done
+    partition-disk
+    if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
+        _cmd_ mkdir -vp /tmp/luks.keys
+        foreach-partition partition-luks-gen-key if-partition-is-luks
+        foreach-partition partition-luks-encrypt if-partition-is-luks
+        foreach-partition partition-luks-add-key if-partition-is-luks
+        foreach-partition partition-luks-decrypt if-partition-is-luks
+        foreach-partition partition-luks-crypttab if-partition-is-luks
     fi
-    partition-format "${@}"
-    partition-mount "${@}"
+    foreach-partition partition-format
+    foreach-partition partition-mount
 }
 
 export -f partition partition-with-sgdisk partition-encrypt partition-format partition-mount
