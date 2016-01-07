@@ -104,3 +104,19 @@ partition() {
 }
 
 export -f partition partition-with-sgdisk partition-encrypt partition-format partition-mount
+
+foreach-partition() {
+    local fn=$1 cond=$2
+    local i num size typecode label fstype mountpoint dev encryption
+    for i in $(seq 1 ${#partitions[*]}); do
+        read num size typecode label fstype mountpoint <<< "${partitions[i]}"
+        for dev in /dev/mapper/$label /dev/disk/by-partlabel/$label $disk$num; do
+            test -e $dev && break
+        done
+        encryption=$INSTALL_DISK_ENCRYPTION
+        if [ $typecode = ef00 -o $typecode = ef01 -o $typecode = fe02 ]; then
+            encryption=none
+        fi
+        test -z "$cond" && $fn || { test $cond && $fn ; }
+    done
+}
