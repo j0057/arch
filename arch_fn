@@ -1,11 +1,8 @@
 #!/bin/bash
 
 partition() {
-    local i disk=$1 parttype=$2 partitions=()
-    shift 2
-    for i in $(seq 1 $#); do
-        partitions[i]="${!i}"
-    done
+    local i disk=$1 parttype=$2 partitions=(); shift 2
+    for i in $(seq 1 $#); do partitions[i]="${!i}"; done
     partition-disk
     if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
         _ mkdir -vp /tmp/luks.keys
@@ -34,11 +31,11 @@ partition-disk() {
 
 partition-format() {
     case $fstype in
-        swap)   _ mkswap -L $label $dev ;;
-        ext4)   _ mkfs.ext4 -L $label $dev ;;
-        vfat)   _ mkfs.vfat -n $label $dev ;;
-        -)      ;;
-        *)      echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
+        swap) _ mkswap -L $label $dev ;;
+        ext4) _ mkfs.ext4 -L $label $dev ;;
+        vfat) _ mkfs.vfat -n $label $dev ;;
+        -)    ;;
+        *)    echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
     esac
 }
 
