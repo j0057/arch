@@ -19,26 +19,24 @@ lines() {
 }
 export -f lines
 
-partition-with-sgdisk() {
-    local i j num size typecode label fstype mountpoint
-    _cmd_ sgdisk ${disk} --zap-all
-    for i in $(seq 1 ${#}); do
-        for j in $(seq 1 ${#}); do
-            # partitions are listed in the order they should be mounted, but created in the order according to $num
-            read num size typecode label fstype mountpoint <<< "${!j}"
-            if [ "${num}" = "${i}" ]; then
-                _cmd_ sgdisk ${disk} --new ${i}:${size} --typecode ${i}:${typecode} --change-name ${i}:${label} \
-                        --attributes "${i}:set:63"
-            fi
-        done
+if-correct-partition() {
+    test $j = $num
+}
+
+partition-create() {
+    _cmd_ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
+}
+
+partition-disk() {
+    local j
+    _cmd_ sgdisk $disk --zap-all
+    for j in `seq 1 ${#partitions[*]}`; do
+        foreach-partition partition-create if-correct-partition
     done
-    if [ ${parttype} = mbr ]; then
-        # XXX: get from $@
-        _cmd_ sgdisk ${disk} --gpttombr 1:2:3:4
-    fi
-    case ${parttype} in
-        mbr) _cmd_ sfdisk ${disk} --list ;;
-        gpt) _cmd_ sgdisk ${disk} --print ;;
+    case $parttype in
+        mbr) _cmd_ sgdisk $disk --gpttombr 1:2:3:4
+             _cmd_ sgdisk $disk --print-mbr ;;
+        gpt) _cmd_ sgdisk $disk --print ;;
     esac
 }
 
