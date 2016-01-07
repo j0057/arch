@@ -8,7 +8,6 @@ _cmd_() {
         "$@"
     fi
 }
-export -f _cmd_
 
 lines() {
     local target="$1"
@@ -17,7 +16,6 @@ lines() {
         echo "${!i}" >> "$target"
     done
 }
-export -f lines
 
 if-correct-partition() {
     test $j = $num
@@ -103,8 +101,6 @@ partition() {
     foreach-partition partition-mount
 }
 
-export -f partition partition-with-sgdisk partition-encrypt partition-format partition-mount
-
 foreach-partition() {
     local fn=$1 cond=$2
     local i num size typecode label fstype mountpoint dev encryption
@@ -120,3 +116,7 @@ foreach-partition() {
         test -z "$cond" && $fn || { test $cond && $fn ; }
     done
 }
+
+for fn in `declare -f | grep '^[a-zA-Z0-9_-]* () $' | cut -d \  -f 1`; do
+    export -f $fn
+done
