@@ -8,7 +8,7 @@ partition() {
     done
     partition-disk
     if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
-        _cmd_ mkdir -vp /tmp/luks.keys
+        _ mkdir -vp /tmp/luks.keys
         foreach-partition partition-luks-gen-key if-partition-is-luks
         foreach-partition partition-luks-encrypt if-partition-is-luks
         foreach-partition partition-luks-add-key if-partition-is-luks
@@ -21,22 +21,22 @@ partition() {
 
 partition-disk() {
     local j
-    _cmd_ sgdisk $disk --zap-all
+    _ sgdisk $disk --zap-all
     for j in `seq 1 ${#partitions[*]}`; do
         foreach-partition partition-create if-correct-partition
     done
     case $parttype in
-        mbr) _cmd_ sgdisk $disk --gpttombr 1:2:3:4
-             _cmd_ sgdisk $disk --print-mbr ;;
-        gpt) _cmd_ sgdisk $disk --print ;;
+        mbr) _ sgdisk $disk --gpttombr 1:2:3:4
+             _ sgdisk $disk --print-mbr ;;
+        gpt) _ sgdisk $disk --print ;;
     esac
 }
 
 partition-format() {
     case $fstype in
-        swap)   _cmd_ mkswap -L $label $dev ;;
-        ext4)   _cmd_ mkfs.ext4 -L $label $dev ;;
-        vfat)   _cmd_ mkfs.vfat -n $label $dev ;;
+        swap)   _ mkswap -L $label $dev ;;
+        ext4)   _ mkfs.ext4 -L $label $dev ;;
+        vfat)   _ mkfs.vfat -n $label $dev ;;
         -)      ;;
         *)      echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
     esac
@@ -44,10 +44,10 @@ partition-format() {
 
 partition-mount() {
     case $fstype in
-        swap) _cmd_ swapon -v LABEL=$label ;;
+        swap) _ swapon -v LABEL=$label ;;
         -)    ;;
-        *)    _cmd_ mkdir -vp /mnt$mountpoint
-              _cmd_ mount -v LABEL=$label /mnt$mountpoint
+        *)    _ mkdir -vp /mnt$mountpoint
+              _ mount -v LABEL=$label /mnt$mountpoint
               ;;
     esac
 }
@@ -57,7 +57,7 @@ if-correct-partition() {
 }
 
 partition-create() {
-    _cmd_ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
+    _ sgdisk $disk --new $i:$size --typecode $i:$typecode --change-name $i:$label --attributes $i:set:63 $n
 }
 
 if-partition-is-luks() {
@@ -65,20 +65,20 @@ if-partition-is-luks() {
 }
 
 partition-luks-gen-key() {
-    _cmd_ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/$label.key
+    _ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/$label.key
 }
 
 partition-luks-encrypt() {
-    _cmd_ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $disk$num
+    _ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $disk$num
 }
 
 partition-luks-add-key() {
-    _cmd_ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $disk$num \
+    _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $disk$num \
         <(echo -n "$INSTALL_PASSWORD")
 }
 
 partition-luks-decrypt() {
-    _cmd_ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $disk$num $label
+    _ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $disk$num $label
 }
 
 partition-luks-crypttab() {
@@ -101,13 +101,9 @@ foreach-partition() {
     done
 }
 
-_cmd_() {
+_() {
     echo -en "\n\e[1;32m$@\e[0;0m\n\n" 1>&2
-    if [ "$EVAL1" = "1" ]; then
-        eval "$1"
-    else
-        "$@"
-    fi
+    "$@"
 }
 
 lines() {

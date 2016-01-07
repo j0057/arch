@@ -4,11 +4,11 @@
 lines /etc/hostname "$INSTALL_HOSTNAME"
 
 # (2) set timezone
-_cmd_ ln -sf "/usr/share/zoneinfo/$INSTALL_TZNAME" /etc/localtime
+_ ln -sf "/usr/share/zoneinfo/$INSTALL_TZNAME" /etc/localtime
 
 # (3) generate locales
 lines /etc/locale.gen "$INSTALL_LOCALE"
-_cmd_ locale-gen
+_ locale-gen
 
 # (4) set locales
 lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
@@ -24,51 +24,51 @@ done
 
 # (6b) install netctl profiles
 for profile in $INSTALL_NETCTL; do
-    _cmd_ curl -s http://$INSTALL_HOST/netctl/$profile > /etc/netctl/$profile
+    _ curl -s http://$INSTALL_HOST/netctl/$profile -o /etc/netctl/$profile
 done
 
 # (7) configure /etc/mkinitcpio.conf and generate initramfs
 if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
-    _cmd_ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
-    _cmd_ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
+    _ sed -i 's/^FILES=""/FILES="$(find \/etc\/luks.keys -type f 2>\/dev\/null)"/' /etc/mkinitcpio.conf
+    _ sed -i 's/^HOOKS="\(.*\)"$/HOOKS="\1 systemd sd-encrypt sd-lvm2"/' /etc/mkinitcpio.conf
 fi
-_cmd_ mkinitcpio -p linux
-_cmd_ chmod -v 0600 /boot/*.img
+_ mkinitcpio -p linux
+_ chmod -v 0600 /boot/*.img
 
 # (8) set root password
-_cmd_ chpasswd <<< "root:$INSTALL_PASSWORD"
+_ chpasswd <<< "root:$INSTALL_PASSWORD"
 
 # (9) configure and install grub
 if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
     lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
 fi
-_cmd_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
-_cmd_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"$INSTALL_GRUB_CMDLINE\"!" /etc/default/grub
-_cmd_ grub-mkconfig -o /boot/grub/grub.cfg
+_ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
+_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"$INSTALL_GRUB_CMDLINE\"!" /etc/default/grub
+_ grub-mkconfig -o /boot/grub/grub.cfg
 
 case $INSTALL_GRUB_FIRMWARE in
     bios)
-        _cmd_ grub-install --target=i386-pc --recheck $INSTALL_DISK
+        _ grub-install --target=i386-pc --recheck $INSTALL_DISK
         ;;
     uefi)
-        _cmd_ grub-install --target=x86_64-efi --recheck --efi-directory=/boot/efi --bootloader-id="ArchLinux"
-        _cmd_ mkdir -v /boot/efi/EFI/boot
-        _cmd_ cp -v /boot/efi/EFI/ArchLinux/grubx64.efi /boot/efi/EFI/boot/bootx64.efi
+        _ grub-install --target=x86_64-efi --recheck --efi-directory=/boot/efi --bootloader-id="ArchLinux"
+        _ mkdir -v /boot/efi/EFI/boot
+        _ cp -v /boot/efi/EFI/ArchLinux/grubx64.efi /boot/efi/EFI/boot/bootx64.efi
         ;;
 esac
 
 # enable services
 for service in $INSTALL_SERVICES; do
     case "$service" in
-        netctl@*.service)   _cmd_ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "$service") ;;
-        *.target)           _cmd_ systemctl set-default $service ;;
-        *)                  _cmd_ systemctl enable $service ;;
+        netctl@*.service)   _ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "$service") ;;
+        *.target)           _ systemctl set-default $service ;;
+        *)                  _ systemctl enable $service ;;
     esac
 done
 
 # install pip
-_cmd_ curl -s "https://bootstrap.pypa.io/get-pip.py" > /tmp/get-pip.py
-_cmd_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
+_ curl -s "https://bootstrap.pypa.io/get-pip.py" -o /tmp/get-pip.py
+_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
 lines /etc/profile.d/local-bin.sh 'PATH=$PATH:$HOME/.local/bin'
 
 # run post-install function

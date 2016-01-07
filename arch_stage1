@@ -5,19 +5,19 @@ configure_disk
 
 # find fastest mirrors
 lines /etc/pacman.conf "[options]" "ILoveCandy"
-_cmd_ pacman --sync --refresh --noconfirm --color always reflector
-_cmd_ reflector --country NL --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+_ pacman --sync --refresh --noconfirm --color always reflector
+_ reflector --country NL --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
 
 # install base system
-_cmd_ pacstrap /mnt $INSTALL_PACKAGES
+_ pacstrap /mnt $INSTALL_PACKAGES
 
 # configure /etc/fstab
-_cmd_ genfstab -L -p /mnt > /mnt/etc/fstab
+_ genfstab -L -p /mnt > /mnt/etc/fstab
 
 # install LUKS keys
 if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
-    _cmd_ mv -v /tmp/luks.keys /mnt/etc
-    _cmd_ chmod -vR 0400 /mnt/etc/luks.keys
-    _cmd_ chmod -v 0700 /mnt/etc/luks.keys
-    _cmd_ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
+    _ mv -v /tmp/luks.keys /mnt/etc
+    _ chmod -vR 0400 /mnt/etc/luks.keys
+    _ chmod -v 0700 /mnt/etc/luks.keys
+    _ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
 fi
