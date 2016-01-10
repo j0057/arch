@@ -1,34 +1,8 @@
 #!/bin/bash
 
-# strip whitespace from some variables
-INSTALL_INTERFACES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_INTERFACES//$'\n'/ }")
-INSTALL_PACKAGES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_PACKAGES//$'\n'/ }")
-INSTALL_SERVICES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_SERVICES//$'\n'/ }")
-INSTALL_NETCTL=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_NETCTL//$'\n'/ }")
+source \
+    <(curl -s http://$INSTALL_HOST/arch_vars)
 
-# override and export variables starting with INSTALL_*
-for var in ${!INSTALL_*}; do
-    read -p "$var: " -e -i "${!var}" $var 0<&4
-    export $var
-done
-
-# export functions
-for func in configure_disk post_install; do
-    if [ "$(type -t $func)" = function ]; then
-        export -f $func
-    fi
-done
-
-# set some defaults if still necessary
-export INSTALL_DISK="${INSTALL_DISK:-/dev/sda}"
-export INSTALL_DISK_ENCRYPTION="${INSTALL_DISK_ENCRYPTION:-luks}"
-export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
-export INSTALL_GRUB_FIRMWARE="${INSTALL_GRUB_FIRMWARE:-bios}"
-
-# preserve -e and -x flags
-[[ "$-" = *x* ]] && OPT="-ex" || OPT="-e"
-
-# actual stage0: load functions, run stage1 and stage2
 source \
     <(curl -s http://$INSTALL_HOST/arch_fn)
 
