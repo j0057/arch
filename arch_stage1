@@ -21,3 +21,9 @@ if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
     _ chmod -v 0700 /mnt/etc/luks.keys
     _ mv -v /tmp/crypttab /mnt/etc/crypttab.initramfs
 fi
+
+# install efi shells
+if [ $INSTALL_GRUB_FIRMWARE = uefi ]; then
+    _ mkdir -pv /mnt/boot/efi/EFI
+    _ cp -v /run/archiso/bootmnt/EFI/shellx64_*.efi /mnt/boot/efi/EFI
+fi
