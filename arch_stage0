@@ -12,13 +12,5 @@ bash $OPT \
 arch-chroot /mnt bash $OPT \
     <(curl -s http://$INSTALL_HOST/arch_stage2)
 
-# unmount filesystems and swaps
-umount -R /mnt
-swapoff -a
-
-# close device mapper stuff
-if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
-    lsblk -P \
-        | sed -rn '/TYPE="crypt"/ { s/^NAME="([^ ]*)" .*$/\1/ ; p }' \
-        | xargs -n 1 cryptsetup close
-fi
+bash $OPT \
+    <(curl -s http://$INSTALL_HOST/arch_unmount)

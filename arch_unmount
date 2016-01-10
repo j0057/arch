@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# unmount filesystems
+if lsblk -P | grep -q 'MOUNTPOINT="/mnt"'; then
+    umount -R /mnt
+fi
+
+# unmount swaps
+if lsblk -P | grep -q 'MOUNTPOINT="\[SWAP\]"'; then
+    swapoff -a
+fi
+
+# close device mapper stuff
+case $INSTALL_DISK_ENCRYPTION in
+    luks)   if lsblk -P | grep -q 'TYPE="crypt"'; then
+                blkid -t TYPE=crypto_LUKS -o value -s PARTLABEL | xargs -n 1 cryptsetup luksClose --verbose
+            fi
+            ;;
+esac
