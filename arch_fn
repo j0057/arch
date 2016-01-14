@@ -9,8 +9,8 @@ partition() {
         foreach-partition partition-luks-gen-key if-partition-is-luks
         foreach-partition partition-luks-encrypt if-partition-is-luks
         foreach-partition partition-luks-add-key if-partition-is-luks
-        foreach-partition partition-luks-decrypt if-partition-is-luks
         foreach-partition partition-luks-crypttab if-partition-is-luks
+        foreach-partition partition-luks-decrypt if-partition-is-luks
     fi
     foreach-partition partition-format
     foreach-partition partition-mount
@@ -41,10 +41,10 @@ partition-format() {
 
 partition-mount() {
     case $fstype in
-        swap) _ swapon -v LABEL=$label ;;
+        swap) _ swapon -v $dev ;;
         -)    ;;
         *)    _ mkdir -vp /mnt$mountpoint
-              _ mount -v LABEL=$label /mnt$mountpoint
+              _ mount -v $dev /mnt$mountpoint
               ;;
     esac
 }
@@ -66,20 +66,21 @@ partition-luks-gen-key() {
 }
 
 partition-luks-encrypt() {
-    _ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $disk$num
+    _ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $dev
 }
 
 partition-luks-add-key() {
-    _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $disk$num \
+    _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $dev \
         <(echo -n "$INSTALL_PASSWORD")
 }
 
 partition-luks-decrypt() {
-    _ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $disk$num $label
+    _ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $dev $label
 }
 
 partition-luks-crypttab() {
-    lines /tmp/crypttab "$label $disk$num /etc/luks.keys/$label.key"
+    lines /tmp/crypttab \
+        "$label $dev /etc/luks.keys/$label.key"
 }
 
 foreach-partition() {
@@ -87,7 +88,8 @@ foreach-partition() {
     local i num size typecode label fstype mountpoint dev encryption
     for i in $(seq 1 ${#partitions[*]}); do
         read num size typecode label fstype mountpoint <<< "${partitions[i]}"
-        for dev in /dev/mapper/$label /dev/disk/by-partlabel/$label $disk$num; do
+        for dev in /dev/disk/by-label/$label /dev/mapper/$label \
+                   /dev/disk/by-partlabel/$label $disk$num; do
             test -e $dev && break
         done
         encryption=$INSTALL_DISK_ENCRYPTION
