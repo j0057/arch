@@ -93,7 +93,7 @@ foreach-partition() {
             test -e $dev && break
         done
         encryption=$INSTALL_DISK_ENCRYPTION
-        if [ $typecode = ef00 -o $typecode = ef01 -o $typecode = fe02 ]; then
+        if [[ $typecode =~ ef0[0-2] ]]; then
             encryption=none
         fi
         if [ -n "$cond" ]; then
