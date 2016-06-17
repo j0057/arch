@@ -20,7 +20,7 @@ while read dev mac profile; do
     if [ "$mac" = '-' ]; then
         continue
     fi
-    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"$mac\", NAME=\"$dev\"" >> /etc/udev/rules.d/10-network.rules
+    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"${mac,,}\", NAME=\"$dev\"" >> /etc/udev/rules.d/10-network.rules
 done <<< "$INSTALL_INTERFACES"
 
 # (6b) install netctl profiles
