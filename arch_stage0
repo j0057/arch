@@ -1,16 +1,16 @@
 #!/bin/bash
 
 source \
-    <(curl -s http://$INSTALL_HOST/arch_vars)
+    <(curl -s $INSTALL_HOST/arch_vars)
 
 source \
-    <(curl -s http://$INSTALL_HOST/arch_fn)
+    <(curl -s $INSTALL_HOST/arch_fn)
 
 bash $OPT \
-    <(curl -s http://$INSTALL_HOST/arch_stage1)
+    <(curl -s $INSTALL_HOST/arch_stage1)
 
 arch-chroot /mnt bash $OPT \
-    <(curl -s http://$INSTALL_HOST/arch_stage2)
+    <(curl -s $INSTALL_HOST/arch_stage2)
 
 bash $OPT \
-    <(curl -s http://$INSTALL_HOST/arch_unmount)
+    <(curl -s $INSTALL_HOST/arch_unmount)
