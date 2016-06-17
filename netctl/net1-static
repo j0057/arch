@@ -1,0 +1,5 @@
+Interface=net1
+Connection=ethernet
+IP=static
+Address=${INSTALL_NETCTL_NET1_ADDR}
+ExcludeAuto=no
