@@ -51,7 +51,8 @@ if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
     lines /etc/default/grub 'GRUB_ENABLE_CRYPTODISK=y'
 fi
 _ sed -i '/^#GRUB_COLOR_.*$/ s/^#//' /etc/default/grub
-_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s!=\"quiet\"!=\"$INSTALL_GRUB_CMDLINE\"!" /etc/default/grub
+_ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s@=\"quiet\"@=\"$INSTALL_GRUB_CMDLINE\"@" /etc/default/grub
+_ sed -i "/^GRUB_GFXMODE=/ s/auto/${INSTALL_GRUB_GFXMODE:-1024x768x32}/" /etc/default/grub
 _ grub-mkconfig -o /boot/grub/grub.cfg
 
 # (9b) install grub
