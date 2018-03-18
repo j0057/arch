@@ -16,16 +16,24 @@ lines /etc/locale.conf "LANG=${INSTALL_LOCALE/ */}"
 # (5) TODO: /etc/vconsole.conf
 
 # (6a) configure network adapters
-read -a intf_mac <<< $INSTALL_INTERFACES
-for i in `seq 0 2 ${#intf_mac[*]}`; do
-    let j=i+1
-    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"${intf_mac[j]}\", NAME=\"${intf_mac[i]}\"" >> /etc/udev/rules.d/10-network.rules
-done
+while read dev mac profile; do
+    if [ "$mac" = '-' ]; then
+        continue
+    fi
+    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"$mac\", NAME=\"$dev\"" >> /etc/udev/rules.d/10-network.rules
+done <<< "$INSTALL_INTERFACES"
 
 # (6b) install netctl profiles
-for profile in $INSTALL_NETCTL; do
-    _ curl -s http://$INSTALL_HOST/netctl/$profile -o /etc/netctl/$profile
-done
+while read dev mac profiles; do
+    if [ "$profiles" = '-' ]; then
+        continue
+    fi
+    while IFS=',' read profile; do
+        _ curl -s http://$INSTALL_HOST/netctl/$profile \
+            | dev=$dev mac=$mac profile=$profile envsubst \
+            > /etc/netctl/${dev}-${profile}
+    done <<< "$profiles"
+done <<< "$INSTALL_INTERFACES"
 
 # (7) configure /etc/mkinitcpio.conf and generate initramfs
 if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
