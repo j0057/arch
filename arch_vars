@@ -24,6 +24,7 @@ export INSTALL_DISK="${INSTALL_DISK:-/dev/sda}"
 export INSTALL_DISK_ENCRYPTION="${INSTALL_DISK_ENCRYPTION:-luks}"
 export INSTALL_GRUB_CMDLINE="${INSTALL_GRUB_CMDLINE:-quiet}"
 export INSTALL_GRUB_FIRMWARE="${INSTALL_GRUB_FIRMWARE:-bios}"
+export INSTALL_PYTHON27_PIP="${INSTALL_PYTHON27_PIP:-0}"
 
 # preserve -e and -x flags
 [[ "$-" = *e* ]] && OPT+=e

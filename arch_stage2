@@ -64,9 +64,11 @@ for service in $INSTALL_SERVICES; do
 done
 
 # install pip
-_ curl -s "https://bootstrap.pypa.io/get-pip.py" -o /tmp/get-pip.py
-_ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
-lines /etc/profile.d/local-bin.sh 'PATH=$PATH:$HOME/.local/bin'
+if [ "$INSTALL_PYTHON27_PIP" = 1 ]; then
+    _ curl -s "https://bootstrap.pypa.io/get-pip.py" -o /tmp/get-pip.py
+    _ python2 /tmp/get-pip.py --user --no-cache-dir --disable-pip-version-check
+    lines /etc/profile.d/local-bin.sh 'PATH=$PATH:$HOME/.local/bin'
+fi
 
 # run post-install function
 if [ "$(type -t post_install)" = "function" ]; then
