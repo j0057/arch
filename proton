@@ -8,7 +8,7 @@ configure_disk() {
         "2  +0:+510M    8300    boot    ext4    /boot" \
         "3  +0:+512M    ef00    efisys  vfat    /boot/efi" \
         "5  +0:+384G    8300    home    ext4    /home" \
-        "6  +0:+16G     8300    swap    swap    -"
+        "6  +0:+16G     8200    swap    swap    -"
 }
 
 INSTALL_DISK="/dev/sdb"
