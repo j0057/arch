@@ -3,24 +3,24 @@
 partition() {
     local i disk=$1 parttype=$2 partitions=(); shift 2
     for i in $(seq 1 $#); do partitions[i]="${!i}"; done
-    partition-disk
+    partition_disk
     if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
         _ mkdir -vp /tmp/luks.keys
-        foreach-partition partition-luks-gen-key if-partition-is-luks
-        foreach-partition partition-luks-encrypt if-partition-is-luks
-        foreach-partition partition-luks-add-key if-partition-is-luks
-        foreach-partition partition-luks-crypttab if-partition-is-luks
-        foreach-partition partition-luks-decrypt if-partition-is-luks
+        foreach_partition partition_luks_gen_key if_partition_is_luks
+        foreach_partition partition_luks_encrypt if_partition_is_luks
+        foreach_partition partition_luks_add_key if_partition_is_luks
+        foreach_partition partition_luks_crypttab if_partition_is_luks
+        foreach_partition partition_luks_decrypt if_partition_is_luks
     fi
-    foreach-partition partition-format
-    foreach-partition partition-mount
+    foreach_partition partition_format
+    foreach_partition partition_mount
 }
 
-partition-disk() {
+partition_disk() {
     local j
     _ sgdisk $disk --zap-all
     for j in `seq 1 ${#partitions[*]}`; do
-        foreach-partition partition-create if-correct-partition
+        foreach_partition partition_create if_correct_partition
     done
     case $parttype in
         mbr) _ sgdisk $disk --gpttombr 1:2:3:4
@@ -29,7 +29,7 @@ partition-disk() {
     esac
 }
 
-partition-format() {
+partition_format() {
     case $fstype in
         swap) _ mkswap -L $label $dev ;;
         ext4) _ mkfs.ext4 -L $label $dev ;;
@@ -39,7 +39,7 @@ partition-format() {
     esac
 }
 
-partition-mount() {
+partition_mount() {
     case $fstype in
         swap) _ swapon -v $dev ;;
         -)    ;;
@@ -49,41 +49,41 @@ partition-mount() {
     esac
 }
 
-if-correct-partition() {
+if_correct_partition() {
     test $j = $num
 }
 
-partition-create() {
+partition_create() {
     _ sgdisk $disk --new $num:$size --typecode $num:$typecode --change-name $num:$label --attributes $num:set:63
 }
 
-if-partition-is-luks() {
+if_partition_is_luks() {
     test $encryption = luks
 }
 
-partition-luks-gen-key() {
+partition_luks_gen_key() {
     _ dd bs=1 count=32 if=/dev/random of=/tmp/luks.keys/$label.key
 }
 
-partition-luks-encrypt() {
+partition_luks_encrypt() {
     _ cryptsetup luksFormat -q -d /tmp/luks.keys/$label.key -s 512 $dev
 }
 
-partition-luks-add-key() {
+partition_luks_add_key() {
     _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $dev \
         <(echo -n "$INSTALL_PASSWORD")
 }
 
-partition-luks-decrypt() {
+partition_luks_decrypt() {
     _ cryptsetup luksOpen -q -d /tmp/luks.keys/$label.key $dev $label
 }
 
-partition-luks-crypttab() {
+partition_luks_crypttab() {
     lines /tmp/crypttab \
         "$label $dev /etc/luks.keys/$label.key"
 }
 
-foreach-partition() {
+foreach_partition() {
     local fn=$1 cond=$2
     local i num size typecode label fstype mountpoint dev encryption
     for i in $(seq 1 ${#partitions[*]}); do
