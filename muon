@@ -1,36 +1,45 @@
 #!/bin/bash -e
 
 configure_disk() {
-    partition "${INSTALL_DISK}" "mbr" \
-        "2  +0:+12G     8300    root    ext4    /" \
-        "1  1M:+1023M   8300    boot    ext4    /boot" \
-        "3  +0:+96G     8300    home    ext4    /home" \
-        "4  +0:+2G      8200    swap    swap    -"
+    # "1TB" = 1024209543168 B = 953 GiB + 890 MiB + 344 KiB
+    partition "$INSTALL_DISK" "gpt" \
+        "3  +0:+256G    8300    muon_root   btrfs   /" \
+        "1  1M:+377M    8300    muon_boot   ext4    /boot" \
+        "2  +0:+512M    ef00    muon_efi    vfat    /boot/efi" \
+        "4  +0:+665G    8300    muon_home   btrfs   /home" \
+        "5  +0:+32G     8200    muon_swap   swap    -"
 }
 
-INSTALL_DISK="/dev/sda"
-INSTALL_DISK_ENCRYPTION="none"
-INSTALL_GRUB_FIRMWARE="bios"
-INSTALL_GRUB_CMDLINE="resume=/dev/sda4"
+INSTALL_DISK="/dev/nvme0n1"
+INSTALL_DISK_ENCRYPTION="luks"
+INSTALL_GRUB_FIRMWARE="uefi"
+INSTALL_GRUB_CMDLINE="resume=/dev/mapper/muon_swap"
 
-INSTALL_HOST="${1:-j0057.github.io/arch}"
+INSTALL_HOST="${1:-https://j0057.github.io/arch}"
 INSTALL_HOSTNAME="muon"
 
-INSTALL_INTERFACES="net0 00:27:0e:01:9c:0c dhcp"
+INSTALL_INTERFACES="
+    net0    e0:d5:5e:63:0e:a9   dhcp
+    net1    e0:d5:5e:63:0e:a7   dhcp
+    wlan0   e4:70:b8:68:b6:c7   pk28"
 
 INSTALL_TZNAME="Europe/Amsterdam"
 INSTALL_LOCALE="en_US.UTF-8 UTF-8"
 
 INSTALL_PACKAGES="
-    base grub ifplugd
-    lsb-release openssh python2
-    base-devel git"
+    base btrfs-progs grub efibootmgr ifplugd wpa_actiond wpa_supplicant
+    openssh vim tmux htop mc"
 
 INSTALL_SERVICES="
     netctl-ifplugd@net0.service
+    netctl-ifplugd@net1.service
+    netctl-auto@wlan0.service
     sshd.service
     multi-user.target"
 
 INSTALL_PASSWORD="root"
+INSTALL_PK28_PASSWORD="password"
 
-source <(curl -s "http://${INSTALL_HOST}/arch_stage0")
+INSTALL_PYTHON27_PIP="0"
+
+source <(curl -s "${INSTALL_HOST}/arch_stage0")
