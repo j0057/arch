@@ -89,7 +89,7 @@ foreach-partition() {
     for i in $(seq 1 ${#partitions[*]}); do
         read num size typecode label fstype mountpoint <<< "${partitions[i]}"
         for dev in /dev/disk/by-label/$label /dev/mapper/$label \
-                   /dev/disk/by-partlabel/$label $disk$num; do
+                   /dev/disk/by-partlabel/$label ${disk}p${num} $disk$num; do
             test -e $dev && break
         done
         encryption=$INSTALL_DISK_ENCRYPTION
