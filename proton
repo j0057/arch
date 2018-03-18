@@ -20,15 +20,12 @@ INSTALL_HOST="${1:-j0057.github.io/arch}"
 INSTALL_HOSTNAME="proton"
 
 INSTALL_INTERFACES="
-    net0  00:90:f5:f4:8f:0d
-    wlan0 7c:e9:d3:aa:c6:53"
-
-INSTALL_NETCTL="
-    net0-dhcp
-    wlan0-pierkes-wlan
-    wlan0-sm-medewerkers
-    wlan0-joost-ap
-    lxc0-static"
+    net0  00:90:f5:f4:8f:0d dhcp
+    wlan0 7c:e9:d3:aa:c6:53 pk28,office"
+INSTALL_PK28_PASSWORD="password"
+INSTALL_OFFICE_SSID="ssid"
+INSTALL_OFFICE_USERNAME="username"
+INSTALL_OFFICE_PASSWORD="password"
 
 INSTALL_TZNAME="Europe/Amsterdam"
 INSTALL_LOCALE="en_US.UTF-8 UTF-8"
@@ -53,5 +50,11 @@ INSTALL_SERVICES="
     multi-user.target"
 
 INSTALL_PASSWORD="root"
+
+post_install() {
+    hashed=$(echo -e "$INSTALL_OFFICE_PASSWORD" | iconv -t utf16le | openssl md4)
+    sed -i "s/PASSWORDHASH/$hashed/" /etc/netctl/wlan0-office
+}
+export -f post_install
 
 source <(curl -s "http://${INSTALL_HOST}/arch_stage0")

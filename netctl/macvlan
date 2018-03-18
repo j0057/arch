@@ -1,0 +1,7 @@
+Interface=$dev
+Connection=macvlan
+BindsToInterfaces=$INSTALL_MACVLAN_BIND
+Mode=bridge
+MACAddress=$INSTALL_MACVLAN_MAC
+IP=no
+IP6=no

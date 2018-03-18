@@ -1,3 +1,3 @@
-Interface=net0
+Interface=$dev
 Connection=ethernet
 IP=dhcp

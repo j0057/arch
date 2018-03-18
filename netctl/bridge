@@ -1,5 +1,6 @@
-Interface=lxc0
+Interface=$dev
 Connection=bridge
 BindsToInterfaces=()
 IP=static
-Address=10.103.0.1/24
+Address=$INSTALL_BRIDGE_IP
+IP6=no

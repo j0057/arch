@@ -16,8 +16,7 @@ INSTALL_GRUB_CMDLINE="resume=/dev/sda4"
 INSTALL_HOST="${1:-j0057.github.io/arch}"
 INSTALL_HOSTNAME="muon"
 
-INSTALL_INTERFACES="net0 00:27:0e:01:9c:0c"
-INSTALL_NETCTL="net0-dhcp"
+INSTALL_INTERFACES="net0 00:27:0e:01:9c:0c dhcp"
 
 INSTALL_TZNAME="Europe/Amsterdam"
 INSTALL_LOCALE="en_US.UTF-8 UTF-8"

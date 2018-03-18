@@ -14,11 +14,15 @@ INSTALL_GRUB_FIRMWARE="bios"
 INSTALL_GRUB_CMDLINE=""
 
 INSTALL_INTERFACES="
-    net0 00:01:c0:18:06:39
-    net1 00:01:c0:18:27:84
-    net2 00:01:c0:18:27:85
-    net3 00:01:c0:18:27:86"
-INSTALL_NETCTL="net0-dhcp"
+    net0 00:01:c0:18:06:39 dhcp
+    net1 00:01:c0:18:27:84 -
+    net2 00:01:c0:18:27:85 -
+    net3 00:01:c0:18:27:86 -
+    lxc0 -                 bridge
+    lxc1 -                 macvlan"
+INSTALL_BRIDGE_IP="10.103.0.1/24"
+INSTALL_MACVLAN_MAC="02:70:6b:32:38:00"
+INSTALL_MACVLAN_BIND="net0"
 
 INSTALL_HOST="${1:-j0057.github.io/arch}"
 INSTALL_HOSTNAME="photon"

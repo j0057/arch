@@ -1,0 +1,6 @@
+Interface=$dev
+Connection=wireless
+Security=wpa
+ESSID=PK28
+Key="$INSTALL_PK28_PASSWORD"
+IP=dhcp

@@ -1,6 +1,0 @@
-Interface=wlan0
-Connection=wireless
-Security=wpa
-ESSID="Pierke's WLAN"
-Key="PASSWORD"
-IP=dhcp
