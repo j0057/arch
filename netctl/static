@@ -1,0 +1,7 @@
+Interface=$dev
+Connection=ethernet
+IP=static
+Address=${INSTALL_STATIC_IP}
+DNS=(${INSTALL_STATIC_DNS})
+Gateway=${INSTALL_STATIC_GW}
+ExcludeAuto=no

@@ -1,0 +1,43 @@
+#!/bin/bash -e
+
+configure_disk() { # luks uefi gpt
+    partition "${INSTALL_DISK}" "gpt" \
+        "3  +0:+8G      8300    test_root   ext4    /" \
+        "1  1M:+511M    8300    test_boot   ext4    /boot" \
+        "2  +0:+512M    ef00    test_efi    vfat    /boot/efi" \
+        "4  +0:+5G      8300    test_home   ext4    /home" \
+        "5  +0:+2G      8200    test_swap   swap    -"
+}
+
+
+INSTALL_DISK="/dev/sda"
+INSTALL_DISK_ENCRYPTION="luks"
+INSTALL_GRUB_FIRMWARE="uefi"
+INSTALL_GRUB_CMDLINE="resume=/dev/mapper/test_swap"
+
+INSTALL_HOST="${1:-https://raw.githubusercontent.com/j0057/arch/vbox}"
+INSTALL_HOSTNAME="test"
+
+INSTALL_PACKAGES="
+    base grub efibootmgr ifplugd vim
+    ntp haveged
+    tmux vim-minimal htop lsof strace bind-tools traceroute openssl mc
+    openssh python2 lsb-release"
+INSTALL_SERVICES="
+    netctl-ifplugd@net0.service
+    sshd.service
+    haveged.service
+    ntpd.service
+    multi-user.target"
+
+INSTALL_INTERFACES="net0 02:00:0a:65:14:cb static"
+INSTALL_STATIC_IP="10.101.20.203/16"
+INSTALL_STATIC_GW="10.101.0.254"
+INSTALL_STATIC_DNS="8.8.8.8 8.8.4.4"
+
+INSTALL_TZNAME="Europe/Amsterdam"
+INSTALL_LOCALE="en_US.UTF-8 UTF-8"
+
+INSTALL_PASSWORD="root"
+
+source <(curl -s "${INSTALL_HOST}/arch_stage0")
