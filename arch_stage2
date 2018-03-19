@@ -87,3 +87,10 @@ fi
 if [ "$(type -t post_install)" = "function" ]; then
     post_install
 fi
+
+# print luks keys -- better save them somewhere if they're important..!
+if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
+    for k in /etc/luks.keys/*; do
+        echo "$k : $(xxd -p -c64 $k)"
+    done
+fi
