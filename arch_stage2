@@ -72,6 +72,10 @@ for service in $INSTALL_SERVICES; do
     esac
 done
 
+# disable other services
+_ systemctl mask lvm2-lvmetad.service
+_ systemctl mask lvm2-lvmetad.socket
+
 # install pip
 if [ "$INSTALL_PYTHON27_PIP" = 1 ]; then
     _ curl -s "https://bootstrap.pypa.io/get-pip.py" -o /tmp/get-pip.py
