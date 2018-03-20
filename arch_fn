@@ -1,16 +1,18 @@
 #!/bin/bash
 
 partition() {
-    local i disk=$1 parttype=$2 partitions=(); shift 2
-    for i in $(seq 1 $#); do partitions[i]="${!i}"; done
+    local disk=$1 parttype=$2
+    local if_encrypt='[[ !($typecode =~ ef0[0-2]) && $INSTALL_DISK_ENCRYPTION = luks ]]'
+    shift 2
+    local partitions=("$@")
     partition_disk
     if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
         _ mkdir -vp /tmp/luks.keys
-        foreach_partition partition_luks_gen_key if_partition_is_luks
-        foreach_partition partition_luks_encrypt if_partition_is_luks
-        foreach_partition partition_luks_add_key if_partition_is_luks
-        foreach_partition partition_luks_crypttab if_partition_is_luks
-        foreach_partition partition_luks_decrypt if_partition_is_luks
+        foreach_partition partition_luks_gen_key "$if_encrypt"
+        foreach_partition partition_luks_encrypt "$if_encrypt"
+        foreach_partition partition_luks_add_key "$if_encrypt"
+        foreach_partition partition_luks_crypttab "$if_encrypt"
+        foreach_partition partition_luks_decrypt "$if_encrypt"
     fi
     foreach_partition partition_format
     foreach_partition partition_mount
@@ -19,8 +21,8 @@ partition() {
 partition_disk() {
     local j
     _ sgdisk $disk --zap-all
-    for j in `seq 1 ${#partitions[*]}`; do
-        foreach_partition partition_create if_correct_partition
+    for ((j=1; j<=${#partitions[*]}; j++)); do
+        foreach_partition partition_create '$num = $j'
     done
     case $parttype in
         mbr) _ sgdisk $disk --gpttombr 1:2:3:4
@@ -49,16 +51,8 @@ partition_mount() {
     esac
 }
 
-if_correct_partition() {
-    test $j = $num
-}
-
 partition_create() {
     _ sgdisk $disk --new $num:$size --typecode $num:$typecode --change-name $num:$label --attributes $num:set:63
-}
-
-if_partition_is_luks() {
-    test $encryption = luks
 }
 
 partition_luks_gen_key() {
@@ -70,8 +64,7 @@ partition_luks_encrypt() {
 }
 
 partition_luks_add_key() {
-    _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $dev \
-        <(echo -n "$INSTALL_PASSWORD")
+    _ cryptsetup luksAddKey -q -d /tmp/luks.keys/$label.key $dev <(echo -n "$INSTALL_PASSWORD")
 }
 
 partition_luks_decrypt() {
@@ -79,28 +72,19 @@ partition_luks_decrypt() {
 }
 
 partition_luks_crypttab() {
-    lines /tmp/crypttab \
-        "$label $dev /etc/luks.keys/$label.key"
+    lines /tmp/crypttab "$label $dev /etc/luks.keys/$label.key"
 }
 
 foreach_partition() {
     local fn=$1 cond=$2
     local i num size typecode label fstype mountpoint dev encryption
-    for i in $(seq 1 ${#partitions[*]}); do
+    for ((j=i; i<=${#partitions[*]}; i++)); do
         read num size typecode label fstype mountpoint <<< "${partitions[i]}"
         for dev in /dev/disk/by-label/$label /dev/mapper/$label \
-                   /dev/disk/by-partlabel/$label ${disk}p${num} $disk$num; do
+                   /dev/disk/by-partlabel/$label /dev/$disk'p'$num /dev/$disk$num; do
             test -e $dev && break
         done
-        encryption=$INSTALL_DISK_ENCRYPTION
-        if [[ $typecode =~ ef0[0-2] ]]; then
-            encryption=none
-        fi
-        if [ -n "$cond" ]; then
-            if $cond; then $fn; fi
-        else
-            $fn
-        fi
+        test -z "$cond" || eval "$cond" && $fn
     done
 }
 
