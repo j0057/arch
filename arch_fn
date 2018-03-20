@@ -2,10 +2,11 @@
 
 partition() {
     local disk=$1 parttype=$2
-    local if_encrypt='[[ !($typecode =~ ef0[0-2]) && $INSTALL_DISK_ENCRYPTION = luks ]]'
     shift 2
     local partitions=("$@")
+    local if_encrypt='[[ !($typecode =~ ef0[0-2]) && $INSTALL_DISK_ENCRYPTION = luks ]]'
     partition_disk
+    sleep 0.5; _ partprobe $disk; sleep 0.5
     if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
         _ mkdir -vp /tmp/luks.keys
         foreach_partition partition_luks_gen_key "$if_encrypt"
@@ -22,7 +23,7 @@ partition_disk() {
     local j
     _ sgdisk $disk --zap-all
     for ((j=1; j<=${#partitions[*]}; j++)); do
-        foreach_partition partition_create '$num = $j'
+        foreach_partition partition_create '[[ $num = $j ]]'
     done
     case $parttype in
         mbr) _ sgdisk $disk --gpttombr 1:2:3:4
@@ -78,13 +79,17 @@ partition_luks_crypttab() {
 foreach_partition() {
     local fn=$1 cond=$2
     local i num size typecode label fstype mountpoint dev encryption
-    for ((j=i; i<=${#partitions[*]}; i++)); do
+    for ((i=0; i<${#partitions[*]}; i++)); do
         read num size typecode label fstype mountpoint <<< "${partitions[i]}"
         for dev in /dev/disk/by-label/$label /dev/mapper/$label \
-                   /dev/disk/by-partlabel/$label /dev/$disk'p'$num /dev/$disk$num; do
+                   /dev/disk/by-partlabel/$label $disk'p'$num $disk$num; do
             test -e $dev && break
         done
-        test -z "$cond" || eval "$cond" && $fn
+        if [ -z "$cond" ]; then
+            $fn
+        elif eval "$cond"; then
+            $fn
+        fi
     done
 }
 
@@ -96,8 +101,8 @@ _() {
 lines() {
     local target="$1"
     echo -en "\n\e[1;32mconfiguring $target\e[0;0m\n\n" 1>&2
-    for i in $(seq 2 ${#}); do
-        echo "${!i}" >> "$target"
+    for x in $(seq 2 ${#}); do
+        echo "${!x}" >> "$target"
     done
 }
 
