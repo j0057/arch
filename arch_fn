@@ -36,6 +36,7 @@ partition_format() {
     case $fstype in
         swap) _ mkswap -L $label $dev ;;
         ext4) _ mkfs.ext4 -L $label $dev ;;
+       btrfs) _ mkfs.btrfs -L $label -f $dev ;;
         vfat) _ mkfs.vfat -n $label $dev ;;
         -)    ;;
         *)    echo "$FUNCNAME: unkown fstype $fstype" >&2 ; exit 1 ;;
