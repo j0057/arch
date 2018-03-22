@@ -3,6 +3,7 @@
 # strip whitespace from some variables
 INSTALL_PACKAGES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_PACKAGES//$'\n'/ }")
 INSTALL_SERVICES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_SERVICES//$'\n'/ }")
+INSTALL_INTERFACES=$(sed 's/\s\+/ /g ; s/^\s*//' <<< "${INSTALL_INTERFACES//$'\n'/ }")
 
 # override and export variables starting with INSTALL_*
 for var in ${!INSTALL_*}; do
