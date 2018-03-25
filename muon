@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+exec &> >(tee install.log)
+
 configure_disk() {
     # "1TB" = 1024209543168 B = 953 GiB + 890 MiB + 344 KiB
     partition "$INSTALL_DISK" "gpt" \
