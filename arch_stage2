@@ -32,7 +32,7 @@ for (( i=0 ; i<${#net[*]}; i+=3 )); do
         continue
     fi
     while IFS=',' read profile; do
-        _ curl -s http://$INSTALL_HOST/netctl/$profile \
+        _ curl -s $INSTALL_HOST/netctl/$profile \
             | dev=$dev mac=$mac profile=$profile envsubst \
             > /etc/netctl/${dev}-${profile}
     done <<< "$profiles"
