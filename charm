@@ -32,7 +32,6 @@ INSTALL_PACKAGES="
     wpa_supplicant
     lsb-release
     openssh
-    python2
     haveged
     ntp
     bind-tools
