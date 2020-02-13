@@ -9,7 +9,7 @@ configure_disk() {
 }
 
 INSTALL_DISK="/dev/sda"
-INSTALL_DISK_ENCRYPTION="none"
+INSTALL_DISK_ENCRYPTION="luks"
 INSTALL_GRUB_FIRMWARE="bios"
 INSTALL_GRUB_CMDLINE="resume=/dev/mapper/swap"
 
