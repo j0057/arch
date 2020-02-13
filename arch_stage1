@@ -6,7 +6,7 @@ configure_disk
 # find fastest mirrors
 lines /etc/pacman.conf "[options]" "ILoveCandy"
 _ pacman --sync --refresh --noconfirm --color always reflector
-_ reflector --country NL --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+_ reflector --country NL --country DE --fastest 10 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
 
 # install base system
 _ pacstrap /mnt $INSTALL_PACKAGES
