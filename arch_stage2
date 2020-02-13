@@ -66,9 +66,12 @@ esac
 # enable services
 for service in $INSTALL_SERVICES; do
     case "$service" in
-        netctl@*.service) _ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "$service") ;;
-        *.target)         _ systemctl set-default $service ;;
-        *)                _ systemctl enable $service ;;
+        netctl@*.service) _ netctl enable $(sed 's/netctl@\(.*\)\.service/\1/' <<< "$service")
+                            ;;
+        *.target)         _ systemctl set-default $service
+                            ;;
+        *)                _ systemctl enable $service
+                            ;;
     esac
 done
 
