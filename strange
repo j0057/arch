@@ -5,10 +5,10 @@ exec &> >(tee install.log)
 configure_disk() {
     # "128GB" = 128035676160 B = 119 GiB + 248 MiB + 344 KiB + 0 B
     partition "$INSTALL_DISK" "gpt" \
-        "3  +0:+96G     8300    strange_root    ext4    /" \
+        "3  +0:+32G     8300    strange_root    ext4    /" \
         "1  1M:+760M    8300    strange_boot    ext4    /boot" \
-        "2  +0:+512M    ef00    strange_efi     vfat    /boot/efi" \
-        "4  +0:+6G      8300    strange_home    ext4    /home" \
+        "2  +0:+511M    ef00    strange_efi     vfat    /boot/efi" \
+        "4  +0:+70G     8300    strange_home    ext4    /home" \
         "5  +0:+16G     8200    strange_swap    swap    -"
 }
 
