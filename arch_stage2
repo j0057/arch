@@ -66,6 +66,8 @@ _ sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT/ s@=\"quiet\"@=\"$INSTALL_GRUB_CMDLINE\"@
 _ sed -i "/^GRUB_GFXMODE=/ s/auto/${INSTALL_GRUB_GFXMODE:-1024x768x32}/" /etc/default/grub
 _ grub-mkconfig -o /boot/grub/grub.cfg
 
+# set up pacman
+lines /etc/pacman.conf "[options]" "ILoveCandy"
 
 # enable services
 for service in $INSTALL_SERVICES; do
