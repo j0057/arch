@@ -33,7 +33,9 @@ INSTALL_PACKAGES="
     grub
     linux
     mkinitcpio
+    cryptsetup
     netctl
+    dhcpcd
     ifplugd
     wpa_actiond
     wpa_supplicant
