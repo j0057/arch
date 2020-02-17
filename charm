@@ -39,13 +39,6 @@ INSTALL_PACKAGES="
     powertop
     tmux
     vim-minimal
-    lightdm
-    lightdm-gtk-greeter
-    xfce4
-    xfce4-goodies
-    xorg-drivers
-    xorg-server
-    chromium
     "
 
 INSTALL_SERVICES="
