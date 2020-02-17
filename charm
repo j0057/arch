@@ -1,11 +1,15 @@
 #!/bin/bash -e
 
 configure_disk() {
-    partition "${INSTALL_DISK}" "mbr" \
-        "2  +0:+16G     8300    root    ext4    /" \
-        "1  1M:+1023M   8300    boot    ext4    /boot" \
-        "3  +0:+128G    8300    home    ext4    /home" \
-        "4  +0:+4G      8200    swap    swap    -"
+    # disk: 312,581,808 sectors = 160,041,885,696 B = "160 GB" = 149G 51M 856K
+    # free: 312,579,693 sectors = 160,040,802,816 B = "160 GB" = 149G 50M 822K 512B
+    partition "${INSTALL_DISK}" "gpt" \
+        "1  1M:+1M      ef02    bios    -       -" \
+        "3  +0:+16G     8300    root    ext4    /" \
+        "2  +0:+1022M   8300    boot    ext4    /boot" \
+        "5  +0:+96G     8300    home    ext4    /home" \
+        "4  +0:+32G     8300    data    ext4    /var" \
+        "6  +0:+4G      8200    swap    swap    -"
 }
 
 INSTALL_DISK="/dev/sda"
