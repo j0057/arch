@@ -21,7 +21,8 @@ INSTALL_HOST="${1:-https://j0057.github.io/arch}"
 INSTALL_HOSTNAME="strange"
 
 INSTALL_INTERFACES="
-    net0    ec:a8:6b:ff:ce:dc   dhcp"
+    net0    ec:a8:6b:ff:ce:dc   dhcp
+    wifi0   a0:a8:cd:2d:fc:3a   pk28"
 
 INSTALL_TZNAME="Europe/Amsterdam"
 INSTALL_LOCALE="en_US.UTF-8 UTF-8"
@@ -32,10 +33,10 @@ INSTALL_PACKAGES="
 
 INSTALL_SERVICES="
     netctl-ifplugd@net0.service
-    netctl-ifplugd@net1.service
-    netctl-auto@wlan0.service
+    netctl-auto@wifi0.service
     sshd.service
-    multi-user.target"
+    multi-user.target
+    "
 
 INSTALL_PASSWORD="root"
 INSTALL_PK28_PASSWORD="password"
