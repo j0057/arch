@@ -14,7 +14,7 @@ INSTALL_GRUB_FIRMWARE="bios"
 INSTALL_GRUB_CMDLINE="resume=/dev/mapper/swap"
 
 INSTALL_HOST="${1:-j0057.github.io/arch}"
-INSTALL_HOSTNAME="neutrino"
+INSTALL_HOSTNAME="charm"
 
 INSTALL_INTERFACES="
     net0  00:26:22:0f:d3:8f dhcp
