@@ -39,6 +39,8 @@ INSTALL_PACKAGES="
     tmux
     htop
     mc
+    retroarch
+    retroarch-assets-xmb
     "
 
 INSTALL_SERVICES="
