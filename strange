@@ -13,7 +13,7 @@ configure_disk() {
 }
 
 INSTALL_DISK="/dev/sda"
-INSTALL_DISK_ENCRYPTION="luks"
+INSTALL_DISK_ENCRYPTION="none"
 INSTALL_GRUB_FIRMWARE="uefi"
 INSTALL_GRUB_CMDLINE="resume=/dev/disk/by-label/strange-swap"
 
