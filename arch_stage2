@@ -43,6 +43,7 @@ if [ $INSTALL_DISK_ENCRYPTION = luks ]; then
     _ sed -i 's/^FILES=.*$/FILES=($(find \/etc\/luks.keys -type f 2>\/dev\/null))/' /etc/mkinitcpio.conf
     _ sed -i 's/^HOOKS=.*$/HOOKS=(base systemd autodetect block filesystems keyboard sd-encrypt fsck)/' /etc/mkinitcpio.conf
 fi
+lines /etc/mkinitcpio.conf "COMPRESSION=cat"
 _ mkinitcpio -p linux
 _ chmod -v 0600 /boot/*.img
 
