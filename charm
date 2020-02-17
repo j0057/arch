@@ -60,7 +60,7 @@ INSTALL_SERVICES="
 INSTALL_PASSWORD="root"
 
 post_install() {
-    _cmd_ sed -i 's/^#\?HandleLidSwitch=.*$/HandleLidSwitch=ignore/' /etc/systemd/logind.conf
+    _ sed -i 's/^#\?HandleLidSwitch=.*$/HandleLidSwitch=ignore/' /etc/systemd/logind.conf
 }
 
 source <(curl -s "http://${INSTALL_HOST}/arch_stage0")
