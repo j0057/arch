@@ -54,8 +54,7 @@ INSTALL_SERVICES="
     sshd.service
     multi-user.target"
 
-INSTALL_INTERFACES="net0 08:00:27:84:b0:02"
-INSTALL_NETCTL="net0-dhcp"
+INSTALL_INTERFACES="net0 08:00:27:84:b0:02 -"
 
 INSTALL_TZNAME="Europe/Amsterdam"
 INSTALL_LOCALE="en_US.UTF-8 UTF-8"
