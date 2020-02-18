@@ -62,15 +62,15 @@ partition_luks_gen_key() {
 }
 
 partition_luks_encrypt() {
-    _ cryptsetup --verbose luksFormat --batch-mode --key-file /tmp/luks.keys/$label.key --key-size 512 $dev
+    _ cryptsetup --verbose --type luks1 luksFormat --batch-mode --key-file /tmp/luks.keys/$label.key --key-size 512 $dev
 }
 
 partition_luks_add_key() {
-    _ cryptsetup --verbose luksAddKey --batch-mode --key-file /tmp/luks.keys/$label.key $dev <(echo -n "$INSTALL_PASSWORD")
+    _ cryptsetup --verbose --type luks1 luksAddKey --batch-mode --key-file /tmp/luks.keys/$label.key $dev <(echo -n "$INSTALL_PASSWORD")
 }
 
 partition_luks_decrypt() {
-    _ cryptsetup --verbose luksOpen --batch-mode --key-file /tmp/luks.keys/$label.key $dev $label
+    _ cryptsetup --verbose --type luks1 luksOpen --batch-mode --key-file /tmp/luks.keys/$label.key $dev $label
 }
 
 partition_luks_crypttab() {
