@@ -18,11 +18,26 @@ INSTALL_HOST="${1:-j0057.github.io/arch}"
 INSTALL_HOSTNAME="arch-vbox7"
 
 INSTALL_PACKAGES="
-    base grub efibootmgr
-    ifplugd 
-    ntp haveged
-    tmux vim-minimal htop lsof strace bind-tools traceroute openssl mc
-    openssh python2 lsb-release"
+    base
+    grub
+    efibootmgr
+    ifplugd
+    ntp
+    haveged
+    tmux
+    vim-minimal
+    htop
+    lsof
+    strace
+    bind-tools
+    traceroute
+    openssl
+    mc
+    openssh
+    python2
+    lsb-release
+    "
+
 INSTALL_SERVICES="
     netctl-ifplugd@net0.service
     sshd.service
