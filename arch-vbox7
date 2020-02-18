@@ -19,9 +19,18 @@ INSTALL_HOSTNAME="arch-vbox7"
 
 INSTALL_PACKAGES="
     base
+    linux
+    linux-firmware
+    intel-ucode
     grub
+    mkinitcpio
     efibootmgr
+    e2fsprogs
+    dosfstools
+    btrfs-progs
+    netctl
     ifplugd
+    dhcpcd
     ntp
     haveged
     tmux
@@ -36,6 +45,9 @@ INSTALL_PACKAGES="
     openssh
     python2
     lsb-release
+    man
+    man-db
+    texinfo
     "
 
 INSTALL_SERVICES="
